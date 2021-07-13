@@ -10,7 +10,7 @@ const { esAdmin, arrayUsuario, searchUser } = require('../datos/usuario');
 
 function crearNuevoPedido(req,res){
     console.log('inicio');
-    const datos= req.body; //deveria tomar el array de productos(detalle) q toma del body
+    const datos= req.body; //toma el array de productos del body
     const info= Buffer.from(req.headers.token,'base64'); // me devuelve una cadena en base64.. debo convertir luego
     const [username, psw] = info.toString('utf8').split(':');
 

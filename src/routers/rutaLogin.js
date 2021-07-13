@@ -35,23 +35,6 @@ function registroUser(req, res) {
 }
 
 
-// function authentication(req,res){   // prueba get para path /auth se debe convertir en middleware >>>>>>>
-//     if (!req.headers.token){
-//         res.status(401).send('No token info');
-//     }else  {
-//         const info= Buffer.from(req.headers.token,'base64');
-//         const [username, psw] = info.toString('utf8').split(':');
-//         console.log(`info: ${info}  -- user: ${username}  --psw: ${psw}`);
-//         if (validarUsuario(username,psw)){
-//             res.send(`ok ${username} ${ psw}`);
-//         }else {
-//             res.status().send('el usuario no esta registrado');
-//         }
-//     }
-// } >>>>>>>>
-
-
-
 module.exports = {
     getRouter,
     registroUser

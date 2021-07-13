@@ -26,7 +26,7 @@ Pedido.prototype.generarId = function generarId() { //se asigna id y estado de i
     this.estado = "nuevo";
 }
 
-const arrayPago = ["efectivo", "tarjeta", "QR"]; //obj
+const arrayPago = ["efectivo", "tarjeta", "QR"]; // probar convirtiendolo en obj
 const arrayEstado = ["nuevo", "confirmado", "preparando", "enviado", "cancelado", "entregado"];
 
 const arrayPedido = []; 

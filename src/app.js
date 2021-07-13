@@ -18,7 +18,7 @@ server.use('/api/v1/usuario/',userRouters);
 
 //----------------pedidos---------------
 // server.use('/api/v1/Pedido', getRouterProd);
-server.post('/api/v1/Pedido', crearNuevoPedido);//realizar pedido
+server.post('/api/v1/Pedido', authenticationEsCliente, crearNuevoPedido);//realizar pedido
 server.put('/api/v1/Pedido/cambio',authenticationAdmin, cambiarEstadoPedido);   // solo admin 
 server.post('/api/v1/Pedido/cliente',authenticationEsCliente);// realizar pedido
 server.put('/api/v1/Pedido/cliente/cambio',authenticationEsCliente, );   // solo admin 
