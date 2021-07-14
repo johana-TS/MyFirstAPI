@@ -40,7 +40,6 @@ function searchUser(usuario, psw) {
          return user.id
       }
    }
-
 }
 
 function existUser(req, res, next) {   //para realizar el registro se fija q el email no exista en la bd

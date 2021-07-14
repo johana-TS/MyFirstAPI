@@ -8,7 +8,7 @@ const router = express.Router();
 function getRoutersProductos(){
     const router = express.Router();
     router.get('/mostrar',middleExisteArray,verProductos);
-    router.post('alta',validateCamposProductos,authenticationAdmin,existeP, altaDeProductos);
+    router.post('/alta',validateCamposProductos,authenticationAdmin,existeP, altaDeProductos);
     router.put('/modificar/nombre',authenticationAdmin,modificarProducto);
     router.put('/modificar',authenticationAdmin,modificarProductoAll);
     router.delete('/baja',authenticationAdmin, deletProducto);

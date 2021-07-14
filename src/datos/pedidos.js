@@ -37,7 +37,6 @@ function crearPedido(detalle,usuarioObj) {
     let newPedido = new Pedido(detalle, usuarioObj);
     newPedido.generarId();
    
-    //newPedido.direcc= detalle[detalle.length].direcc;
     arrayPedido.push(newPedido);
     return newPedido;
 }
@@ -96,7 +95,7 @@ function existPedido(id) {
 }
 
 module.exports = {
-    Pedido,
+  
     arrayPedido,
     existPedido,
     cambiarEstadoPedido,

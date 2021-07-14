@@ -21,7 +21,7 @@ server.use('/api/v1/usuario/',userRouters);
 server.post('/api/v1/Pedido', authenticationEsCliente, crearNuevoPedido);//realizar pedido
 server.put('/api/v1/Pedido/cambio',authenticationAdmin, cambiarEstadoPedido);   // solo admin 
 server.post('/api/v1/Pedido/cliente',authenticationEsCliente);// realizar pedido
-server.put('/api/v1/Pedido/cliente/cambio',authenticationEsCliente, );   // solo admin 
+server.put('/api/v1/Pedido/cliente/cambio',authenticationEsCliente );   // solo admin 
 server.post('/api/v1/Pedido/historial',authenticationAdmin);// para usuarios comunes
 
 

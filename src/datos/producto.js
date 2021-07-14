@@ -1,5 +1,3 @@
-const { obtenetPosicion } = require("./usuario");
-
 
 class Producto  {
     constructor(name,description,stock,precio){
@@ -99,7 +97,7 @@ function buscarProductoXID(id){
             const position=arrayProducto.indexOf(producto);
            arrayProducto.splice(position, 1);;
             //console.log(elementoEliminado);
-           // console.log(arrayProducto);
+           
             return true;
         }
     }
@@ -119,8 +117,7 @@ function pushProducto(name,description,stock,precio){
     let newProduct = new Producto(name, description,stock,precio);
     newProduct.generarId()
     arrayProducto.push(newProduct);
-    // console.log('producto---creo el obj y lo agrego al array');
-    // console.log(newProduct);
+  
     return true
 }
 
@@ -141,14 +138,15 @@ function existeProducto(name){
         } 
     }
     return false
-    next();
+   
 }
 
 
-function hayStock(n){        // lo llamo por el nombre
+function hayStock(n, cantidad){   //cantidad es la solicitada por el usuario
+                                 // lo llamo por el nombre 'n'
     if (existeProducto(n)){ //lo llamo por el nom bre
         for (const p of arrayProducto) { //tengo doble verificacion... hay q cambiarlo
-            if (n===p.name && p.stock>0) {    //aca!
+            if (n===p.name && p.stock>cantidad) {    //aca!
                 return true
             }else {
                 return false
@@ -157,7 +155,7 @@ function hayStock(n){        // lo llamo por el nombre
     }return false
 }
 
-function cambiarStock(x, cantidad){
+function cambiarStock(n, cantidad){  //el admin modifica el stock
     if (existeProducto(n)){
         for (const p of arrayProducto) {
             if (n===p.name){

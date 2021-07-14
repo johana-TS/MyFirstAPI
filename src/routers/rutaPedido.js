@@ -20,6 +20,9 @@ function crearNuevoPedido(req,res){
     const newPedido = crearPedido(datos, personaObj);
     console.log(newPedido);
 
+    //preguntar si el campo direcc es distitnto al guardado en el obj user entonces asignarlo al pedido
+    //newPedido.direcc=datos.direcc;
+    //newPedido.pago=datos.pago;
     if (newPedido!== null || newPedido!==undefined || newPedido!== ""){ // preguntar si lo q devuelve es un obj o un msj string
         
         return res.status(200).send("se ha registrado exitosamente el pedido realizado" + dato);
