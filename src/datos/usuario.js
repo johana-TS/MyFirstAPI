@@ -103,13 +103,13 @@ function authenticationEsCliente(req, res, next) {   //convercion a middleware p
    } else {
       const info = Buffer.from(req.headers.token, 'base64');
       const [username, psw] = info.toString('utf8').split(':');
-      const existe = searchUser(username, psw);
+      
 
       if (validarUsuario(username, psw)) {
-         if (esAdmin(username));
-         next(new Error('el usuario no esta autorizado para realizar la operacion, es admin'));
-      } else {
          next();
+         //if (esAdmin(username));
+      } else {
+         next(new Error('el usuario no esta autorizado para realizar la operacion, es admin'));
       }
    }
 

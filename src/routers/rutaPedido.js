@@ -1,14 +1,14 @@
 const express=require('express');
 
 const { existPedido, cambiarEstadoPedido, crearPedido } = require('../datos/pedidos');
-const { esAdmin, arrayUsuario, searchUser } = require('../datos/usuario');
+const { esAdmin, searchUser, datosUsuario } = require('../datos/usuario');
 
 
 
 
 
 
-function crearNuevoPedido(req,res){
+function crearNuevoPedido(req, res){
     console.log('inicio');
     const datos= req.body; //toma el array de productos del body
     const info= Buffer.from(req.headers.token,'base64'); // me devuelve una cadena en base64.. debo convertir luego

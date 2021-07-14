@@ -41,7 +41,7 @@ function crearPedido(detalle,usuarioObj) {
     return newPedido;
 }
 
-function cambiarEstadoPedido(pedidoActual) {
+function cambiarEstadoPedido(pedidoActual) { //o q ingrese por bodi el estado nuevo directamente?!
 
     for (let pedido of arrayPedido) {
         if (pedido.id === pedidoActual.id) {
