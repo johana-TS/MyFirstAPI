@@ -35,24 +35,28 @@ const arrayPedido = [];
 function crearPedido(detalle,usuarioObj) {
  
     let newPedido = new Pedido(detalle, usuarioObj);
-    newPedido.generarId();
-   
+    newPedido.generarId();   
     arrayPedido.push(newPedido);
+
     return newPedido;
 }
 
-function cambiarEstadoPedido(pedidoActual) { //o q ingrese por bodi el estado nuevo directamente?!
+function modificarCantidadEnPEdido(pedidoId,productoName,stock){
 
-    for (let pedido of arrayPedido) {
-        if (pedido.id === pedidoActual.id) {
-            for (let i = 0; i < arrayEstado-1; i++) {
-                if(arrayEstado[i]===pedidoActual.estado){
-                     pedidoActual.estado= arrayEstado[i+1];
+    for (const p of arrayPedido) {
+        if (pedidoId=== p.id){
+            const producto=p.detalle;
+            for (const elemento of producto) {
+                if (elemento.name===productoName){
+                    elemento.stock=stock;
+                    return elemento
                 }
-                
             }
+
         }
     }
+    return false;
+
 }
 
 function validarPago(pagoUSer) {  
@@ -87,7 +91,7 @@ function medioDePago(idPedido, pagoUSer) {
 function existPedido(id) {
     for (const pedido of arrayPedido) {
         if (pedido.id === id) {
-            return true
+            return pedido
         }
     }
     return false
@@ -98,9 +102,9 @@ module.exports = {
   
     arrayPedido,
     existPedido,
-    cambiarEstadoPedido,
     medioDePago,
-    crearPedido
+    crearPedido,
+    modificarCantidadEnPEdido
 
 }
 
@@ -166,7 +170,8 @@ const senior= {
 
 
  const b=crearPedido(datos, senior);
- console.log(b);// console.log(arrayDetalle.length);
+ b.estado="cerrado";
+ console.log(b);
  console.log(arrayPedido);
 
 

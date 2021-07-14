@@ -1,10 +1,9 @@
 const { Router } = require('express');
 const express= require('express');
-const { cambiarEstadoPedido } = require('./datos/pedidos');
 const {  authenticationAdmin, authenticationEsCliente } = require('./datos/usuario');
 const { loadSwaggerInfo } = require('./middlewares/documentacion');
 const {  getRouter } = require('./routers/rutaLogin');
-const { crearNuevoPedido } = require('./routers/rutaPedido');
+const { crearNuevoPedido,cambioDeEstadoDePedido, cambioDeCantidadDePedido } = require('./routers/rutaPedido');
 const {  getRoutersProductos } = require('./routers/rutaProducto');
 //const { buscar } = require('./routers/rutaLogin');
 
@@ -19,10 +18,10 @@ server.use('/api/v1/usuario/',userRouters);
 //----------------pedidos---------------
 // server.use('/api/v1/Pedido', getRouterProd);
 server.post('/api/v1/Pedido', authenticationEsCliente, crearNuevoPedido);//realizar pedido
-server.put('/api/v1/Pedido/cambio',authenticationAdmin, cambiarEstadoPedido);   // solo admin 
-server.post('/api/v1/Pedido/cliente',authenticationEsCliente);// realizar pedido
-server.put('/api/v1/Pedido/cliente/cambio',authenticationEsCliente );   // solo admin 
-server.post('/api/v1/Pedido/historial',authenticationAdmin);// para usuarios comunes
+server.post('/api/v1/Pedido/historial',authenticationEsCliente);// para usuarios comunes
+server.put('/api/v1/Pedido/Admin/cambioEstado',authenticationAdmin, cambioDeEstadoDePedido);   // solo admin OK
+server.post('/api/v1/Pedido/Admin/cambioPedido',authenticationAdmin);// realizar pedido
+server.put('/api/v1/Pedido/Admin/cambioStock',authenticationAdmin,cambioDeCantidadDePedido  );   // solo admin 
 
 
 //-------------- productos--------------

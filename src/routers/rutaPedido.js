@@ -1,6 +1,7 @@
 const express=require('express');
 
-const { existPedido, cambiarEstadoPedido, crearPedido } = require('../datos/pedidos');
+const { existPedido,  crearPedido } = require('../datos/pedidos');
+const { hayStock, cambiarStock } = require('../datos/producto');
 const { esAdmin, searchUser, datosUsuario } = require('../datos/usuario');
 
 
@@ -33,35 +34,39 @@ function crearNuevoPedido(req, res){
 }
 
 
-function cambioDeEstadoDePedido(req,res){  //                  el cliente cambia el stock del pedido 
-    const pedido= req.body.pedido;
-    const cambio=req.body.cambio;    
-
-    if (existPedido(pedido)){
-        //if el estado no es CERRADO crear mid
-        cambiarEstadoPedido(pedido,cambio);
-        res.status(200).send("ok");
+function cambioDeEstadoDePedido(req,res){  //                  el cliente cambia el estado del pedido 
+    const pedido= req.body.pedidoId;
+    const cambio=req.body.estado;    
+    const existe=  existPedido(pedido);
+    if ( existe !== false){                   //if el estado no es CERRADO 
+       if (existe.estado !== "cerrado"){
+           existe.estado=cambio;
+           res.status(200).send("ok");
+           
+       } else{
+        res.status(406).send("el pedido ingresado se encuentra cerrado");    
+       }
     }else {
-        res.status(401).send("no se encuentra autorizado para realizar el cambio");
+        res.status(404).send("no se encuentra el pedido ingresado");
     }
 
 }
 function cambioDeCantidadDePedido(req,res){
-    const usuario= req.header.usuario;
-    const pedido= req.body.pedido;
-    const producto=req.body.producto;
-    const stock=req.body.stock;    
+    const pedido= req.body.pedidoId;    // id del pedido
+    const producto=req.body.name;
+    const cantidad=req.body.cantidad;    
 
-    if (existPedido(pedido)){
-        if (hayStock(producto)){
-            cambiarCantidad(producto,stock); //cambio la cantidad ne el array de productos si es admin
-            modificarCantidadEnPEdido(producto,stock); //cambio la cantidad en el arra de pedido
+    const existe=existPedido(pedido);
+    if (existe!== false){
+        if (hayStock(producto,cantidad)){
+            cambiarStock(producto,stock); //actualizo la cantidad ne el array de productos si es admin
+            modificarCantidadEnPEdido(pedido,producto,stock); //cambio la cantidad en el arra de pedido
             res.status(200).send("ok");
         }else {
             res.status(404).send("no hay stock del producto");
         }
     }else {
-        res.status(401).send("no se encuentra autorizado para realizar el cambio");
+        res.status(401).send("no existe el pedido ingresado");
     }
 
 }

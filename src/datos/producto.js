@@ -146,7 +146,7 @@ function hayStock(n, cantidad){   //cantidad es la solicitada por el usuario
                                  // lo llamo por el nombre 'n'
     if (existeProducto(n)){ //lo llamo por el nom bre
         for (const p of arrayProducto) { //tengo doble verificacion... hay q cambiarlo
-            if (n===p.name && p.stock>cantidad) {    //aca!
+            if (n===p.name && p.stock>cantidad) {  
                 return true
             }else {
                 return false
@@ -155,15 +155,20 @@ function hayStock(n, cantidad){   //cantidad es la solicitada por el usuario
     }return false
 }
 
-function cambiarStock(n, cantidad){  //el admin modifica el stock
+function cambiarStock(n, cantidad){  //el admin modifica el stock en array de producto no de pedido
     if (existeProducto(n)){
-        for (const p of arrayProducto) {
+        for (const p of arrayProducto) { 
             if (n===p.name){
-                p.stock=cantidad;
+                if (cantidad>0){   //si el cambio es por mas unidades en el pedido, resto el stock
+                    p.stock-=cantidad;
+
+                } else {
+                    p.stock+=cantidad; //si debo disminuir unidades del pedido,sumo el stock
+                }
                 return p
             }
             
-        }return p;
+        }
     }
 }
 
