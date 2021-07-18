@@ -47,16 +47,16 @@ arrayProducto.push({  "id":"1",
     },
     {
         "id":"45",
-        "name":"milanga",
+        "name":"milanesa napolitana",
         "description":"cocion: frita con papas fritas",
-        "precio":"300",
+        "precio":300,
         "stock":80
         
     }
 );
 
 function middleExisteArray(req,res,next){       // chekea que el array no este vacio
-    if (arrayProducto !== undefined || arrayProducto !== null){
+    if (arrayProducto !== undefined || arrayProducto !== null || arrayProducto!==""){
         next();      
     } else {
         next(new Error('no hay productos ingresados en la bd'));
@@ -65,19 +65,38 @@ function middleExisteArray(req,res,next){       // chekea que el array no este v
 
 function validateCamposProductos(req,res,next){
     const {name,description, stock, precio} = req.body;
-    if (name=== undefined || name=== null){
+
+    if (name=== undefined || name=== null || name===""){
        next(new Error ('no ha completado el campo "name"'))
-    } else if (description=== undefined || description === null){
+    } else if (description=== undefined || description === null || description===""){
        next(new Error ('no ha completado el campo "description"'))
-    } else if (stock=== undefined || stock === null){
+    } else if (stock=== undefined || stock === null|| stock===""){
        next(new Error ('no ha completado el campo "stock"'))
-    } else if (precio=== undefined || precio === null){
+    } else if (precio=== undefined || precio === null ||precio===""){
        next(new Error ('no ha completado el campo "precio"'))
     } else{
        next();
     } 
-    next(); 
+   
 }
+function validateCamposModificacion(req,res,next){
+    const {name,newName,description, stock, precio} = req.body;
+
+    if (name=== undefined || name=== null || name===""){
+       next(new Error ('no ha completado el campo "name"'))
+    } else if (newName=== undefined || newName === null || newName===""){
+       next(new Error ('no ha completado el campo "newName"'))
+    }else if (description=== undefined || description === null || description===""){
+        next(new Error ('no ha completado el campo "description"'))
+    } else if (stock=== undefined || stock === null|| stock===""){
+       next(new Error ('no ha completado el campo "stock"'))
+    } else if (precio=== undefined || precio === null ||precio===""){
+       next(new Error ('no ha completado el campo "precio"'))
+    } else{
+       next();
+    } 
+   
+} //innecesario.. usar validaatecamposproducto y sumarle el newname en el handler
 
 function buscarProductoXNombre(nombre){
     let plato="";
@@ -110,7 +129,12 @@ function verProductos(req, res) {
         listado+= `<li>plato: ${producto.name} - Descripcion: ${producto.descripcion} </li>`;
     }
     listado+=' </ul></div>';        
-    res.status(200).send(listado);
+    if (listado !== null || listado !== undefined || listado!==""){
+        res.status(200).json(listado);
+    } else {
+        res.status(404).json("Error, no hay listado disponible");
+    }
+
 }
 
 function pushProducto(name,description,stock,precio){
@@ -130,46 +154,35 @@ function existeP(req,res,next){
     }
     next();
 }
-function existeProducto(name){
-    
-    for (const p of arrayProducto) {
-        if (name===p.name){
-            return true;
-        } 
-    }
-    return false
-   
-}
+
 
 
 function hayStock(n, cantidad){   //cantidad es la solicitada por el usuario
                                  // lo llamo por el nombre 'n'
-    if (existeProducto(n)){ //lo llamo por el nom bre
+   // if (existeProducto(n)){ //lo llamo por el nom bre
         for (const p of arrayProducto) { //tengo doble verificacion... hay q cambiarlo
             if (n===p.name && p.stock>cantidad) {  
                 return true
-            }else {
-                return false
             }
-        }
-    }return false
+        }return false
+    //}
 }
 
 function cambiarStock(n, cantidad){  //el admin modifica el stock en array de producto no de pedido
-    if (existeProducto(n)){
+    
         for (const p of arrayProducto) { 
             if (n===p.name){
-                if (cantidad>0){   //si el cambio es por mas unidades en el pedido, resto el stock
-                    p.stock-=cantidad;
+                if (cantidad<0){
+                    p.stock+=cantidad; //devolucion
+                }else {
+                    p.stock-=cantidad; //solicitan mas unidades
+                }//si el cambio es por mas unidades en el pedido, resto el stock
 
-                } else {
-                    p.stock+=cantidad; //si debo disminuir unidades del pedido,sumo el stock
-                }
-                return p
+                return p;
             }
             
-        }
-    }
+        } return false;
+    
 }
 
 
@@ -177,11 +190,11 @@ module.exports ={
     middleExisteArray,
     verProductos,
     existeP,
-    existeProducto,
     hayStock,
     cambiarStock,
     pushProducto,
     validateCamposProductos,
     buscarProductoXNombre,
-    buscarProductoXID
+    buscarProductoXID,
+    validateCamposModificacion
 }

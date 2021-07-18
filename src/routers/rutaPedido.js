@@ -1,12 +1,20 @@
 const express=require('express');
-
-const { existPedido,  crearPedido } = require('../datos/pedidos');
+//const router= express.Router();
+const { existPedido,  crearPedido, historial, existeProductoEnPedido } = require('../datos/pedidos');
 const { hayStock, cambiarStock } = require('../datos/producto');
-const { esAdmin, searchUser, datosUsuario } = require('../datos/usuario');
+const {  searchUser, datosUsuario, authenticationEsCliente, authenticationAdmin } = require('../datos/usuario');
 
 
 
+function getRouterPedidos(){
+    const router=express.Router();
+    router.post('/', authenticationEsCliente, crearNuevoPedido);
+    router.post('/historial',authenticationEsCliente, verHistorialDePedidos);
+    router.put('/Admin/cambioEstado',authenticationAdmin, cambioDeEstadoDePedido);
+    router.put('/Admin/cambioStock',authenticationAdmin,existeProductoEnPedido, cambioDeCantidadDePedido );
 
+    return router;
+}
 
 
 function crearNuevoPedido(req, res){
@@ -22,9 +30,9 @@ function crearNuevoPedido(req, res){
     console.log(newPedido);
 
     //preguntar si el campo direcc es distitnto al guardado en el obj user entonces asignarlo al pedido
-    //newPedido.direcc=datos.direcc;
+    //newPedido.direcc=datos.direpostcc;
     //newPedido.pago=datos.pago;
-    if (newPedido!== null || newPedido!==undefined || newPedido!== ""){ // preguntar si lo q devuelve es un obj o un msj string
+    if (newPedido!== null || newPedido!==undefined || newPedido!== ""){ // preguntar si lo q devuelve es distinto de vacio||nulo||undefined
         
         return res.status(200).send("se ha registrado exitosamente el pedido realizado" + dato);
     }else {
@@ -34,7 +42,7 @@ function crearNuevoPedido(req, res){
 }
 
 
-function cambioDeEstadoDePedido(req,res){  //                  el cliente cambia el estado del pedido 
+function cambioDeEstadoDePedido(req,res){  //                   cambia el estado del pedido 
     const pedido= req.body.pedidoId;
     const cambio=req.body.estado;    
     const existe=  existPedido(pedido);
@@ -52,16 +60,22 @@ function cambioDeEstadoDePedido(req,res){  //                  el cliente cambia
 
 }
 function cambioDeCantidadDePedido(req,res){
-    const pedido= req.body.pedidoId;    // id del pedido
+    const pedido= Number(req.body.pedidoId);    // id del pedido
     const producto=req.body.name;
-    const cantidad=req.body.cantidad;    
+    const cantidad= Number(req.body.cantidad);    
 
     const existe=existPedido(pedido);
-    if (existe!== false){
+    if (existe!== false ){
         if (hayStock(producto,cantidad)){
-            cambiarStock(producto,stock); //actualizo la cantidad ne el array de productos si es admin
-            modificarCantidadEnPEdido(pedido,producto,stock); //cambio la cantidad en el arra de pedido
-            res.status(200).send("ok");
+           
+            cambiarStock(producto,cantidad); //actualizo la cantidad ne el array de productos si es admin
+           const resultado= modificarCantidadEnPEdido(pedido,producto,cantidad); //cambio la cantidad en el array de pedido
+            if (resultado!==false){
+
+                res.status(200).send("ok");
+            }else{
+                res.status(404).send("no se pudo realizar el cambio");    
+            }
         }else {
             res.status(404).send("no hay stock del producto");
         }
@@ -70,13 +84,27 @@ function cambioDeCantidadDePedido(req,res){
     }
 
 }
+function verHistorialDePedidos(req,res){
+    
+    const info= Buffer.from(req.headers.token,'base64'); // me devuelve una cadena en base64.. debo convertir luego
+    const [username, psw] = info.toString('utf8').split(':');
+
+    const personaId= searchUser(username,psw);
+    const historialPedidos= historial(personaId);
+    if (historialPedidos!== null || historialPedidos!== undefined || historialPedidos!== ""){
+        res.status(200).send(historialPedidos);
+    }else {
+        res.status(404).send("no se pudo generar el historial de pedidos solicitado");
+    }
+}
 
 
 
 
 
 
-
+//--------------prueba por consola-----------------///
+//console.log(hayStock("milanga",3546));   FUNCIONA!
 
 
 
@@ -87,5 +115,7 @@ function cambioDeCantidadDePedido(req,res){
 module.exports ={
     cambioDeEstadoDePedido,
     cambioDeCantidadDePedido,
-    crearNuevoPedido
+    crearNuevoPedido,
+    verHistorialDePedidos,
+    getRouterPedidos
 }

@@ -1,9 +1,8 @@
 const { Router } = require('express');
 const express= require('express');
-const {  authenticationAdmin, authenticationEsCliente } = require('./datos/usuario');
 const { loadSwaggerInfo } = require('./middlewares/documentacion');
 const {  getRouter } = require('./routers/rutaLogin');
-const { crearNuevoPedido,cambioDeEstadoDePedido, cambioDeCantidadDePedido } = require('./routers/rutaPedido');
+const {  getRouterPedidos } = require('./routers/rutaPedido');
 const {  getRoutersProductos } = require('./routers/rutaProducto');
 //const { buscar } = require('./routers/rutaLogin');
 
@@ -16,12 +15,12 @@ userRouters=getRouter();
 server.use('/api/v1/usuario/',userRouters);
 
 //----------------pedidos---------------
-// server.use('/api/v1/Pedido', getRouterProd);
-server.post('/api/v1/Pedido', authenticationEsCliente, crearNuevoPedido);//realizar pedido
-server.post('/api/v1/Pedido/historial',authenticationEsCliente);// para usuarios comunes
-server.put('/api/v1/Pedido/Admin/cambioEstado',authenticationAdmin, cambioDeEstadoDePedido);   // solo admin OK
-server.post('/api/v1/Pedido/Admin/cambioPedido',authenticationAdmin);// realizar pedido
-server.put('/api/v1/Pedido/Admin/cambioStock',authenticationAdmin,cambioDeCantidadDePedido  );   // solo admin 
+server.use('/api/v1/Pedido', getRouterPedidos());
+//server.post('/api/v1/Pedido', authenticationEsCliente, crearNuevoPedido);//realizar pedido
+//server.post('/api/v1/Pedido/historial',authenticationEsCliente, verHistorialDePedidos);// para usuarios comunes
+//server.put('/api/v1/Pedido/Admin/cambioEstado',authenticationAdmin, cambioDeEstadoDePedido);   // solo admin OK
+//server.put('/api/v1/Pedido/Admin/cambioPedido',authenticationAdmin);
+//server.put('/api/v1/Pedido/Admin/cambioStock',authenticationAdmin,existeProductoEnPedido, cambioDeCantidadDePedido );   // solo admin 
 
 
 //-------------- productos--------------
@@ -73,16 +72,24 @@ function errorHandler(err,req,res,next){
             res.status(404).send('no ha completado el campo "stock"');
         }  else if (err.message=== 'no ha completado el campo "precio"'){
             res.status(404).send('no ha completado el campo "precio"');
+        }  else if (err.message==="Error, no hay listado disponible"){
+            res.status(404).json("Error, no hay listado disponible");
         }
 
         //---------pedidos--------
         if(err.message==="No se pudo generar el pedido solicitado"){
             res.status(404).send("No se pudo generar el pedido solicitado");
-         } ///else if(err.message===) {
-
-        // }
+         } else if(err.message==="el pedido ingresado se encuentra cerrado"){
+            res.status(406).send("el pedido ingresado se encuentra cerrado")
+         } else if (err.message==="no se encuentra el pedido ingresado"){
+             res.status(404).send("no se encuentra el pedido ingresado");
+         } else if (err.message==="no existe el pedido ingresado"){
+            res.status(404).send("no existe el pedido ingresado");
+         }
     } 
 }
+
+
 server.use(errorHandler);//se utiliza luego de todos los get /post/delet/.....
 server.listen('9080',()=> {
      console.log('hola mundo, servior disponible!!!!!!!')

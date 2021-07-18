@@ -1,16 +1,16 @@
 const express=require('express');
-const {  existeP, pushProducto, buscarProductoXNombre, buscarProductoXID, middleExisteArray, verProductos, validateCamposProductos } = require('../datos/producto');
-const {  existUser, authenticationAdmin } = require('../datos/usuario');
+const {  existeP, pushProducto, buscarProductoXNombre, buscarProductoXID, middleExisteArray, verProductos, validateCamposProductos, validateCamposModificacion } = require('../datos/producto');
+const {  authenticationAdmin, authenticationEsCliente, } = require('../datos/usuario');
 
 const router = express.Router();
 
 
 function getRoutersProductos(){
     const router = express.Router();
-    router.get('/mostrar',middleExisteArray,verProductos);
+    router.get('/mostrar',authenticationEsCliente, middleExisteArray,verProductos);
     router.post('/alta',validateCamposProductos,authenticationAdmin,existeP, altaDeProductos);
-    router.put('/modificar/nombre',authenticationAdmin,modificarProducto);
-    router.put('/modificar',authenticationAdmin,modificarProductoAll);
+    router.put('/modificar_nombre',authenticationAdmin,modificarProducto);
+    router.put('/modificar',authenticationAdmin,validateCamposModificacion, modificarProductoAll);
     router.delete('/baja',authenticationAdmin, deletProducto);
 
     return router;
@@ -25,46 +25,53 @@ function altaDeProductos(req,res){
     res.status(200).send('el producto ha sigo agregado a la lista exitosamente');
 }
 
-function modificarProducto(req,res){
-   const dato= req.body.name;
-   //const reemplazo= req.body.newName;
-   const producto= buscarProductoXNombre(dato);
-   if (producto===undefined){
-       res.status(404).send("no se pudo realizar el cambio, el nombre ingresado no existe en la bd");
-    }else {
-       producto.name= req.body.newName;
-       console.log(producto);
-       res.status(200).send('cambio exitoso');
-   }
+function modificarProducto(req,res){ //por nombre//
+    if (req.body.name!== "" ||req.body.name!== null && req.body.newName!== "" ||req.body.newName!== ""){
 
+        const dato= req.body.name;
+        //const reemplazo= req.body.newName;
+        const producto= buscarProductoXNombre(dato);
+        if (producto===undefined){
+            res.status(404).json("no se pudo realizar el cambio, el nombre ingresado no existe en la bd");
+        }else {
+            producto.name= req.body.newName;
+            console.log(producto);
+            res.status(200).json('cambio exitoso');
+        }
+    } else {
+        res.status(406).json("no se completaron los campos: name y/o newName");
+    }
+        
 }
-function modificarProductoAll(req,res){
-    const {name, newName, description, precio, stock}= req.body;
+function modificarProductoAll(req,res){ //cambia cualquier campo del producto
+    const {name, newName, description, stock, precio}= req.body;
     let msj="";
     const producto= buscarProductoXNombre(name);
     console.log(producto);
-    if (producto!== undefined){        
-         if(newName!==producto.name){
-            producto.name=newName;
-            msj+="se ha modificado el nombre del producto, ";
-         };
-        if (producto.description!== description){
-            producto.description=description;
-            msj+="se ha modificado la descripcion del producto, ";
-         };
-         if (producto.precio!== precio){
-            producto.precio=precio;
-            msj+="se ha modificado el precio del producto, ";
-         };
-         if(producto.stock!== precio){
-            producto.stock=stock;
-            msj+="se ha modificado el stock del producto, ";
-        };
-        console.log(producto);
-        res.status(200).send(msj+' exitosamente! ');
-        }
+
+    if (producto=== undefined || producto===null){        
+        res.status(404).json("no se pudo realizar el cambio, el nombre ingresado no existe en la bd");
+    }
     else {            
-        res.status(404).send("no se pudo realizar el cambio, el nombre ingresado no existe en la bd");
+        
+        if (producto.name !== name){
+            producto.name=newName;
+            msj+="se modifico en nombre el producto";
+        }
+        if(producto.description!==description){
+            producto.description=description;
+            msj+="se modifico la descripcion ";
+        }
+        if(producto.stock!==stock){
+            producto.stock=stock;
+            msj+="se modifico el stock del producto";
+        }
+        if(producto.precio!== precio){
+            producto.precio=precio;
+            msj+="se modifico el precio unitario del producto";
+        }
+        console.log(producto);
+        res.status(200).json(`${msj} exitosamente` + producto);
     } 
 }
 function deletProducto(req,res){
@@ -79,7 +86,7 @@ function deletProducto(req,res){
 
 
 module.exports ={
-   // visualizarProductos,
+   
     altaDeProductos,
     modificarProducto,
     modificarProductoAll,

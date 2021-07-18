@@ -1,6 +1,4 @@
-const { prototype } = require("events");
-const { existeProducto, hayStock } = require("./producto");
-const { arrayUsuario, searchUser, datosUsuario } = require("./usuario");
+
 
 class Pedido {
     constructor(detalle, persona) {
@@ -98,16 +96,61 @@ function existPedido(id) {
 
 }
 
+function obtenerDetalle(id){
+    const existe= existPedido(id);
+    if (existe!== false){
+        const detalle= existe.detalle;
+        return detalle;
+    }else {
+        return false
+    }
+}
+
+function existeProductoEnPedido(req,res,next){
+        const id= req.body.pedidoId;
+        const nameArt= req.body.name;
+        for (const p of arrayPedido) {
+    
+            if (p.id ===id){
+                const detalle= p.detalle;
+                for (const articulo of detalle) {
+                    
+                    if ( articulo.name===nameArt ){
+                        next();
+                    }
+                }
+                next(new Error("no existe el producto en el pedido"));
+            }
+        } next(new Error("no existe el pedido ingresado"));
+       
+    
+}
+
+function historial(idU){
+    const historialCliente="";
+    for (const pedido of arrayPedido) {
+        if (idU===pedido.idUser){
+            historialCliente+=pedido;
+        }
+    }return historialCliente;
+}
+
 module.exports = {
   
     arrayPedido,
     existPedido,
     medioDePago,
     crearPedido,
-    modificarCantidadEnPEdido
+    modificarCantidadEnPEdido,
+    obtenerDetalle,
+    existeProductoEnPedido,
+    historial
+  
 
 }
 
+
+///-----------------prueba por consola----------------------///
 
 const datos= [{
     
@@ -171,7 +214,10 @@ const senior= {
 
  const b=crearPedido(datos, senior);
  b.estado="cerrado";
+ const c= crearPedido(datos2,senior)
  console.log(b);
+ c.estado="en proceso";
  console.log(arrayPedido);
+ console.log(arrayPedido.length);
 
 

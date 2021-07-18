@@ -28,7 +28,7 @@ const arrayUsuario = [];
 let nuevo = new Usuario('joha', '123', '123', 'johana', 'torres', 'to@toto.com', 'olmo 1010', '239545865');
 nuevo.generarId();
 arrayUsuario.push(nuevo);
-let c = new Usuario('mari', '321', '321', 'MAria ', 'Lopez', 'tomate@toto.com', 'malvinas arg. 4562', '2395488746');
+let c = new Usuario('mari', '321', '321', 'Maria ', 'Lopez', 'tomate@toto.com', 'malvinas arg. 4562', '2395488746');
 c.generarId();
 arrayUsuario.push(c);
 //console.log(arrayUsuario);
@@ -106,8 +106,7 @@ function authenticationEsCliente(req, res, next) {   //convercion a middleware p
       
 
       if (validarUsuario(username, psw)) {
-         next();
-         //if (esAdmin(username));
+        next();        
       } else {
          next(new Error('el usuario no esta autorizado para realizar la operacion, es admin'));
       }

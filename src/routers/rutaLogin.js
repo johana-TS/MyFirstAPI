@@ -8,15 +8,15 @@ function getRouter() {
     router.post('/registro', validateCamposRegistro, validateEmail, existUser, validarPsw, registroUser);
     router.post('/login', (req, res) => {  // OK
         if (!req.headers.token) {
-            res.status(401).send('No token info');
+            res.status(401).json('No token info');
         }
         else {
             const info = Buffer.from(req.headers.token, 'base64');
             const [username, psw] = info.toString('utf8').split(':');
             if (validarUsuario(username, psw)) {
-                res.send('bienvenido '+username);
+                res.json('bienvenido '+username);
             } else {
-                res.status(404).send('el usuario no esta registrado');
+                res.status(404).json('el usuario no esta registrado');
             }
         }        
     });
@@ -30,7 +30,7 @@ function registroUser(req, res) {
     if (!registrarUsuario(username, psw, psw2, name, lastName, email, adress, cel)) {
         res.send(new Error("no se pudo registrar el usuario"));
     } else {
-        res.status(200).send(`exito `);
+        res.status(200).json(`exito `);
     }
 }
 
