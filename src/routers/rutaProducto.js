@@ -18,8 +18,8 @@ function getRoutersProductos(){
 
 function altaDeProductos(req,res){
     const {name,description,stock,precio}= req.body;  
-    pushProducto(name,description,stock,precio);  
-    if(!pushProducto(name,description,stock,precio)){
+    const resultado= pushProducto(name,description,stock,precio);  
+    if(resultado===false){
         res.status(406).send('no se pudo ingresar el producto');
     }     
     res.status(200).send('el producto ha sigo agregado a la lista exitosamente');

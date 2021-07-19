@@ -138,11 +138,14 @@ function verProductos(req, res) {
 }
 
 function pushProducto(name,description,stock,precio){
-    let newProduct = new Producto(name, description,stock,precio);
+    const newProduct = new Producto(name, description,stock,precio);
     newProduct.generarId()
     arrayProducto.push(newProduct);
-  
-    return true
+    if (newProduct===null || newProduct=== undefined|| newProduct===""){
+        return false
+    }else {
+        return newProduct
+    }
 }
 
 function existeP(req,res,next){
@@ -155,34 +158,21 @@ function existeP(req,res,next){
     next();
 }
 
-
-
-function hayStock(n, cantidad){   //cantidad es la solicitada por el usuario
-                                 // lo llamo por el nombre 'n'
-   // if (existeProducto(n)){ //lo llamo por el nom bre
-        for (const p of arrayProducto) { //tengo doble verificacion... hay q cambiarlo
+function hayStock(n,cantidad){         
+        for (const p of arrayProducto) { 
             if (n===p.name && p.stock>cantidad) {  
                 return true
-            }
-        }return false
-    //}
+            } 
+        } return false
 }
 
 function cambiarStock(n, cantidad){  //el admin modifica el stock en array de producto no de pedido
-    
         for (const p of arrayProducto) { 
             if (n===p.name){
-                if (cantidad<0){
-                    p.stock+=cantidad; //devolucion
-                }else {
-                    p.stock-=cantidad; //solicitan mas unidades
-                }//si el cambio es por mas unidades en el pedido, resto el stock
-
-                return p;
-            }
-            
+                p.stock+=cantidad;                 
+                return true;
+            }            
         } return false;
-    
 }
 
 

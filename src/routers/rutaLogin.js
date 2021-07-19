@@ -26,8 +26,8 @@ function getRouter() {
 
 function registroUser(req, res) {
     const { username, psw, psw2, name, lastName, email, adress, cel } = req.body;
-    registrarUsuario(username, psw, psw2, name, lastName, email, adress, cel);
-    if (!registrarUsuario(username, psw, psw2, name, lastName, email, adress, cel)) {
+   const resultado= registrarUsuario(username, psw, psw2, name, lastName, email, adress, cel);
+    if (resultado=== false) {
         res.send(new Error("no se pudo registrar el usuario"));
     } else {
         res.status(200).json(`exito `);

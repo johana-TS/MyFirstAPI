@@ -1,11 +1,15 @@
 openapi: 3.0.1
 info:
-  title: Delailah Resto - MyFirstAPI-
+  title: Delilah Resto - MyFirstAPI-
   description: priemera API de un Resto
   version: 0.1.9
 servers:
   - url: http://localhost:9080/api/v1
     description: Optional server description, e.g. Main (production) server
+
+#para realizar las pruebas de autenticacion se utilizo la funcion btoa() and atob() :
+#token= 'bWFyaTozMjE='del cliente: mari psw: 321 
+#token= 'am9oYToxMjM=' del admin: joha psw: 123
 
 paths:
     /usuario/login:
@@ -282,7 +286,7 @@ paths:
                       application/json:
                         schema:
                           type: array
-    /Pedido/:
+    /Pedido/crear: #no anda :/
       post:
           parameters:
               - name: token
@@ -298,8 +302,8 @@ paths:
             content:
               application/json:
                 schema:
-                  type: object
-                  properties:          
+                  type: array
+                  properties:   
                     name:
                       type: string    
                       description:  current name of the product to order
@@ -307,8 +311,10 @@ paths:
                       type: string
                     precioU:
                       type: number
+                      description: price b y unit
                     cantidad:
                       type: number
+                      description: quantity of selected product
           responses:
                   "200":
                     description: its OK , successfully create a new order 
@@ -322,6 +328,132 @@ paths:
                       application/json:
                         schema:
                           type: array
+    /Pedido/historial: #no muestra correctamente los obj que forman el array de historial de pedidos
+      post:
+          parameters:
+              - name: token
+                in: header
+                description: token to be passed as a header
+                required: true
+                schema:
+                  type: string
+          description:  the client requests the history of orders placed
+          summary: endpoint to show all the order made by customer
+          responses:
+                  "200":
+                    description: its OK , show list  
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  "404":
+                    description: Error, Could not find registered orders for who is requesting it
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+    /Pedido/Admin/historial:
+      post:
+          parameters:
+              - name: token
+                in: header
+                description: token to be passed as a header
+                required: true
+                schema:
+                  type: string
+          description:  admin can see all existing orders
+          summary: endpoint to show all the orders
+          responses:
+                  "200":
+                    description: its OK , show list  
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  "404":
+                    description: Error, Could not find registered orders 
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+    /Pedido/Admin/cambioEstado:
+      put:
+          parameters:
+              - name: token
+                in: header
+                description: token to be passed as a header
+                required: true
+                schema:
+                  type: string
+          description:  the administrator selects an order and modifies its status   #para probar usar id 789
+          summary: endpoint to to modify the order status
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:   
+                    pedidoId:
+                      type: number     #para probar usar id 789
+                      description: identifier of the selected order
+                    estado:  
+                      type: string
+                      description: status of the order
+          responses:
+                  "200":
+                    description: its OK ,the change of state was made
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  "404":
+                    description: Error, status change could not be performed
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+    /Pedido/Admin/cambioStock:
+      put:
+          parameters:
+              - name: token
+                in: header
+                description: token to be passed as a header
+                required: true
+                schema:
+                  type: string
+          description:  the administrator selects an order and modifies its stock of products selected;the units to be added or removed from the selected order must be entered."-1 to remove a unit of the product or 1 to add a unit of the product to the order". 
+          summary: endpoint to to modify  the quantity of products selected in an order
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:   
+                    pedidoId:
+                      type: number     #para probar usar id 789
+                      description: identifier of the selected order
+                    name:  
+                      type: string
+                      description: name of the selected product
+                    cantidad:  
+                      type: number
+                      description: the quantity of products selected in an order
+          responses:
+                  "200":
+                    description: its OK ,the change was made
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  "404":
+                    description: Error, status change could not be performed
+                    content:
+                      application/json:
+                        schema:
+                          type: array
 
 
+    
             

@@ -20,7 +20,7 @@ Para iniciar el sistema  utilizar
 ##  -- Instalacion --   
 
 * Clonar repositorio de GitHub
-* Instalr depencencias:
+* Instalar depencencias:
 
    * Express
     ```bsh
@@ -35,3 +35,9 @@ Para iniciar el sistema  utilizar
         npm i js-yaml    
     ```
 
+## Detalle para realizar las pruebas: 
+para realizar las pruebas de autenticacion se utilizo la funcion btoa() and atob() :
+
+-token= 'bWFyaTozMjE=' del cliente/psw: mari:321 
+
+-token= 'am9oYToxMjM=' del admin/psw: joha:123

@@ -16,12 +16,6 @@ server.use('/api/v1/usuario/',userRouters);
 
 //----------------pedidos---------------
 server.use('/api/v1/Pedido', getRouterPedidos());
-//server.post('/api/v1/Pedido', authenticationEsCliente, crearNuevoPedido);//realizar pedido
-//server.post('/api/v1/Pedido/historial',authenticationEsCliente, verHistorialDePedidos);// para usuarios comunes
-//server.put('/api/v1/Pedido/Admin/cambioEstado',authenticationAdmin, cambioDeEstadoDePedido);   // solo admin OK
-//server.put('/api/v1/Pedido/Admin/cambioPedido',authenticationAdmin);
-//server.put('/api/v1/Pedido/Admin/cambioStock',authenticationAdmin,existeProductoEnPedido, cambioDeCantidadDePedido );   // solo admin 
-
 
 //-------------- productos--------------
 
@@ -85,6 +79,18 @@ function errorHandler(err,req,res,next){
              res.status(404).send("no se encuentra el pedido ingresado");
          } else if (err.message==="no existe el pedido ingresado"){
             res.status(404).send("no existe el pedido ingresado");
+         } else if(err.message==="no hay stock para realizar el cambio"){
+            res.status(404).send("no hay stock para realizar el cambio");
+         } else if (err.message==="no existe el producto en el pedido"){
+             res.status(404).json("no existe el producto en el pedido");
+         } else if (err.message==="no se pudo realizar el cambio"){
+            res.status(404).send("no se pudo realizar el cambio");
+         } else if (err.message==="no hay stock del producto seleccionado"){
+            res.status(404).send("no hay stock del producto seleccionado");
+         } else if (err.message==="no existe el pedido NO NO ingresado"){
+             res.status(404).send("no existe el pedido NO NO ingresado");
+         } else if (err.message==="el pedido se encuentra cerrado, no se puede modificar"){
+             res.status(406);send("el pedido se encuentra cerrado, no se puede modificar");
          }
     } 
 }

@@ -18,9 +18,8 @@ class Usuario {
 }
 
 Usuario.prototype.generarId = function generarId() {
-   const id = new Date().getTime();
-   this.id = id;
-   //buscar funcion para generar id con el datatime
+   //const id = new Date().getTime();
+   this.id = new Date().getTime();
 }
 
 //---------------inicio de prueba------------------
@@ -28,9 +27,7 @@ const arrayUsuario = [];
 let nuevo = new Usuario('joha', '123', '123', 'johana', 'torres', 'to@toto.com', 'olmo 1010', '239545865');
 nuevo.generarId();
 arrayUsuario.push(nuevo);
-let c = new Usuario('mari', '321', '321', 'Maria ', 'Lopez', 'tomate@toto.com', 'malvinas arg. 4562', '2395488746');
-c.generarId();
-arrayUsuario.push(c);
+
 //console.log(arrayUsuario);
 
 //-------------fin de prueba------------------------
@@ -108,7 +105,7 @@ function authenticationEsCliente(req, res, next) {   //convercion a middleware p
       if (validarUsuario(username, psw)) {
         next();        
       } else {
-         next(new Error('el usuario no esta autorizado para realizar la operacion, es admin'));
+         next(new Error('el usuario no esta autorizado para realizar la operacion'));
       }
    }
 
@@ -146,12 +143,15 @@ function validateCamposRegistro(req, res, next) {       // chekear que los campo
 }
 function registrarUsuario(username, psw, psw2, name, lastName, email, adress, cel) {
 
-   let newUser = new Usuario(username, psw, psw2, name, lastName, email, adress, cel);
+   const newUser = new Usuario(username, psw, psw2, name, lastName, email, adress, cel);
    newUser.generarId()
    arrayUsuario.push(newUser);
-   console.log('entro al registroUsuario---creo el obj y lo agrego al array');
-   console.log(newUser);
-   return true
+   console.log(arrayUsuario);
+   if (newUser=== null || newUser===undefined|| newUser===""){
+      return false
+   }else {
+      return newUser
+   }
 }
 function esAdmin(username) {
    for (const user of arrayUsuario) {
@@ -174,10 +174,11 @@ function datosUsuario(id) {
 //--------------inicio de prueba----------------
 
 let yo = arrayUsuario[0];
-yo.admin = true;
-arrayUsuario.push(yo);
-//console.log(registroUser(yo));
+yo.admin = true;//creo el user admin
 
+let c = new Usuario('mari', '321', '321', 'Maria ', 'Lopez', 'tomate@toto.com', 'malvinas arg. 4562', '2395488746');
+c.id=852;
+arrayUsuario.push(c);
 console.log(arrayUsuario)
 //----------------fin de prueba---------------------
 
