@@ -21,6 +21,7 @@ function getRouterPedidos(){
     //router.delete('/Admin/bajaPedido', authenticationAdmin,existPedido,bajaPedido);
     router.delete('/Admin/MedioPago', authenticationAdmin,deleteMedioDePago);
     router.put('/Admin/MedioPago', authenticationAdmin,upDateMedioDePAgo);
+    router.get('/Admin/MedioPago', authenticationAdmin,verMP);
 
     return router;
 }
@@ -131,6 +132,17 @@ function upDateMedioDePAgo(req,res){
     }else {
         arrayPago.push(req.body.medioPago);
         res.status(200).send("UPDate exitoso!");
+    }
+}
+function verMP(req,res){ // modificar para q cada method tengo un estado activo/inactivo
+    const listado=[];
+    for (const metodo of arrayPago) {
+        listado.push(metodo);
+    }
+    if(listado!==""|| listado!==undefined|| listado!==null){
+        res.status(200).json(listado);
+    } else {
+        res.status(404).json("no hay metodos de pago guardados en el listado");
     }
 }
 
