@@ -171,10 +171,33 @@ function historialFull(){
         return mostrar;
     }
 }
+function borrarMP(medioSeleccionado){
+
+    for (const medio of arrayPago) {
+        if (medio=== medioSeleccionado){
+            const position=arrayPago.indexOf(medio);
+            arrayPago.splice(position, 1);
+            
+           return true
+        }
+    }return false
+}
+
+function updateMP(nuevoMedio){
+
+    for (const medio of arrayPago) {
+        if (medio=== nuevoMedio){
+            return true;
+        }
+    }return false;
+}
+
+
 module.exports = {
     
     arrayPedido,
     arrayEstado,
+    arrayPago,
     existPedido,
     medioDePago,
     crearPedido,
@@ -184,7 +207,10 @@ module.exports = {
     historial,
     historialFull,
     obtenerPedido,
-    statusCerrado
+    statusCerrado,
+    borrarMP,
+    updateMP
+  
     
     
 }

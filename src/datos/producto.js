@@ -114,7 +114,7 @@ function buscarProductoXID(id){
     for (const producto of arrayProducto) {
         if (producto.id === id){
             const position=arrayProducto.indexOf(producto);
-           arrayProducto.splice(position, 1);;
+           arrayProducto.splice(position, 1);
             //console.log(elementoEliminado);
            
             return true;

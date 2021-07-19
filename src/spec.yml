@@ -453,7 +453,74 @@ paths:
                       application/json:
                         schema:
                           type: array
+    /Pedido/Admin/MedioPago:
+      put:
+          parameters:
+              - name: token
+                in: header
+                description: token to be passed as a header
+                required: true
+                schema:
+                  type: string
+          description:  the administrator enters a new payment method
+          summary: endpoint to enters a new payment method
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:   
+                    medioPago:
+                      type: string     
+                      description: a new payment method
+          responses:
+                  "200":
+                    description: its OK ,the UpDate was made
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  "406":
+                    description: Error, change could not be performed, the payment method is already registered
+                    content:
+                      application/json:
+                        schema:
+                          type: array
 
+      delete:
+          parameters:
+              - name: token
+                in: header
+                description: token to be passed as a header
+                required: true
+                schema:
+                  type: string
+          description:  the administrator deletes a payment method entered by the body  
+          summary: endpoint to delete a payment method 
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:   
+                    pedidoId:
+                      type: string     
+                      description:  a  payment method
+          responses:
+                  "200":
+                    description: its OK ,the method has been removed
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  "406":
+                    description: Error, the payment method you are trying to delete is not registered
+                    content:
+                      application/json:
+                        schema:
+                          type: array
 
     
             

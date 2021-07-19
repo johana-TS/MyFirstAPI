@@ -1,6 +1,6 @@
 const express=require('express');
 const router= express.Router();
-const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido } = require('../datos/pedidos');
+const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP } = require('../datos/pedidos');
 const { hayStock, cambiarStock } = require('../datos/producto');
 const {  searchUser, datosUsuario, authenticationEsCliente, authenticationAdmin, arrayUsuario } = require('../datos/usuario');
 const { loadSwaggerInfo } = require('../middlewares/documentacion');
@@ -19,6 +19,8 @@ function getRouterPedidos(){
     router.post('/Admin/historial', authenticationAdmin,historialAdmin);
     //router.put('/Admin/cambioPrecio', authenticationAdmin,existPedido,cambioDePrecioFinal);
     //router.delete('/Admin/bajaPedido', authenticationAdmin,existPedido,bajaPedido);
+    router.delete('/Admin/MedioPago', authenticationAdmin,deleteMedioDePago);
+    router.put('/Admin/MedioPago', authenticationAdmin,upDateMedioDePAgo);
 
     return router;
 }
@@ -112,7 +114,25 @@ function historialAdmin(req,res){
         res.status(200).json(mostrar);
     }
 }
-
+function deleteMedioDePago(req,res){
+    const exito=borrarMP(req.body.medioPago);   
+   
+    if (exito===true){        
+        res.status(200).send("se borro exitosamente");
+    }else {
+        res.status(406).send("el medio de pago que intenta borra no se encuentra registrado");
+    }
+}
+function upDateMedioDePAgo(req,res){
+    const exito=updateMP(req.body.medioPago);
+  
+    if (exito===true){
+        res.status(406).send("el medio de pago que intenta ingresar ya se encuentra registrado");
+    }else {
+        arrayPago.push(req.body.medioPago);
+        res.status(200).send("UPDate exitoso!");
+    }
+}
 
 
 
