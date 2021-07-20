@@ -7,9 +7,11 @@ servers:
   - url: http://localhost:9080/api/v1
     description: Optional server description, e.g. Main (production) server
 
-#para realizar las pruebas de autenticacion se utilizo la funcion btoa() and atob() :
+#para realizar las pruebas de autenticacion se utilizo la funcion btoa() :
+#------para realizar las pruebas--------------
 #token= 'bWFyaTozMjE='del cliente: mari psw: 321 
 #token= 'am9oYToxMjM=' del admin: joha psw: 123
+#numero de pedido : 789
 
 paths:
     /usuario/login:
@@ -328,7 +330,7 @@ paths:
                       application/json:
                         schema:
                           type: array
-    /Pedido/historial: #no muestra correctamente los obj que forman el array de historial de pedidos
+    /Pedido/historial: 
       post:
           parameters:
               - name: token
@@ -529,6 +531,7 @@ paths:
                   schema:
                     type: string
             description:  the administrator deletes a payment method entered by the body  
+            summary:  endpoint to  show payment methods
             responses:
                     "200":
                       description: its OK ,list of payment method 
@@ -542,7 +545,77 @@ paths:
                         application/json:
                           schema:
                             type: array
-
+    /Pedido/Admin/bajaPedido:
+      delete:
+          parameters:
+              - name: token
+                in: header
+                description: token to be passed as a header
+                required: true
+                schema:
+                  type: string
+          description:  the administrator deletes a order by entering the order id by the body
+          summary: endpoint to delete a  selected order
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:   
+                    pedidoId:
+                      type: number   
+                      description:  pedido id
+          responses:
+                  "200":
+                    description: its OK ,the order was removed from the list
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  "406":
+                    description: Error, the order you are trying to delete is not registered
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+    /Pedido/borrarProducto:
+      delete:
+          parameters:
+              - name: token
+                in: header
+                description: token to be passed as a header
+                required: true
+                schema:
+                  type: string
+          description:  customer deletes a product from a selected order that does not have a "cerrado" status
+          summary: endpoint to remove a product from a selected order
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:   
+                    pedidoId:
+                      type: number   
+                      description:  pedido id
+                    productoName:
+                      type: string 
+                      description:  product name
+          responses:
+                  "200":
+                    description: its OK ,the product was removed from the order
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  "406":
+                    description: Error, the product you are trying to delete is not registered. The change could not be made
+                    content:
+                      application/json:
+                        schema:
+                          type: array
 
               
 

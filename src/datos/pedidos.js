@@ -24,7 +24,7 @@ Pedido.prototype.generarId = function generarId() { //se asigna id y estado de i
     this.estado = "nuevo";
 }
 
-const arrayPago = ["efectivo", "tarjeta", "QR"]; // probar convirtiendolo en obj
+const arrayPago = ["efectivo", "tarjeta", "QR"]; // debo convirtiendolo en objs PENDIENTE
 const arrayEstado = ["nuevo", "confirmado", "preparando", "enviado", "cancelado", "entregado","cerrado"];
 
 const arrayPedido = []; 
@@ -77,11 +77,9 @@ function medioDePago(idPedido, pagoUSer) {
             const seleccionado = pedido;
             if (validarPago(pagoUSer)) {
                 seleccionado.pago = pagoUSer;
-            }return true
-            
-        } else {
-            msj += "no existe el pedido";
-            return msj
+            }return true            
+        } else {           
+            return false
         }
     }
     
@@ -93,14 +91,13 @@ function existPedido(req,res,next) {
     
     for (const pedido of arrayPedido) {
         if (pedido.id===idPedido) {
-            console.log(pedido.id+"lo encontro");
             return next();
         }
-    }console.log(idPedido +"no lo encontro");
-    next(new Error("no existe el pedido NO NO ingresado"));
+    }
+    next(new Error("no existe el pedido ingresado"));
 
 }
-function obtenerPedido(id){
+function obtenerPedido(id){ //id del pedido
     
     for (const p of arrayPedido) {
         if (p.id===id){
@@ -117,12 +114,12 @@ function statusCerrado(req,res,next){
 }
 
 function obtenerDetalle(id){
-    const existe= existPedido(id);
-    if (existe!== false){
+    const existe= obtenerPedido(id);
+    if (existe=== false){
+        return false
+    }else {
         const detalle= existe.detalle;
         return detalle;
-    }else {
-        return false
     }
 }
 
@@ -191,6 +188,18 @@ function updateMP(nuevoMedio){
         }
     }return false;
 }
+function borrarPedido(idpedido){
+    const eliminar=obtenerPedido(idpedido);
+    if (eliminar === false ){
+        return false
+    }else{
+        const position=arrayPedido.indexOf(eliminar);
+        arrayPedido.splice(position, 1);
+        return true
+    }
+            
+  
+}
 
 
 module.exports = {
@@ -209,7 +218,8 @@ module.exports = {
     obtenerPedido,
     statusCerrado,
     borrarMP,
-    updateMP
+    updateMP,
+    borrarPedido
   
     
     
@@ -282,15 +292,14 @@ const b=crearPedido(datos, arrayUsuario[1]);
 b.estado="cerrado";
 
 const c= crearPedido(datos2,senior)
-c.estado="en proceso";
-c.id=789;
-
+arrayPedido[1].estado="en proceso";
+arrayPedido[1].id=789;
 
 console.log(arrayPedido);
 console.log(arrayPedido[1].detalle);
 
 
 const m=modificarCantidadEnPEdido(789,"milanga",-1);
-console.log(m + " cual es el stock?");
+console.log(m );
 
 //-------------------fin prueba por consola----------------------//

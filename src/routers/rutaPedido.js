@@ -1,6 +1,6 @@
 const express=require('express');
 const router= express.Router();
-const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP } = require('../datos/pedidos');
+const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP, borrarPedido, obtenerDetalle } = require('../datos/pedidos');
 const { hayStock, cambiarStock } = require('../datos/producto');
 const {  searchUser, datosUsuario, authenticationEsCliente, authenticationAdmin, arrayUsuario } = require('../datos/usuario');
 const { loadSwaggerInfo } = require('../middlewares/documentacion');
@@ -12,13 +12,13 @@ function getRouterPedidos(){
     router.post('/crear', authenticationEsCliente, crearNuevoPedido);
     router.post('/historial',authenticationEsCliente, verHistorialDePedidos);
     //router.put('/modificarPedido', authenticationEsCliente,existPedido,agregarProducto);
-    //router.delete('/borrarProductoEnPedido', authenticationEsCliente,existPedido,EliminarProducto);
+    router.delete('/borrarProducto', authenticationEsCliente,existPedido,eliminarProductoEnP);
 
     router.put('/Admin/cambioEstado',authenticationAdmin, cambioDeEstadoDePedido);
     router.put('/Admin/cambioStock',authenticationAdmin, existPedido, existeProductoEnPedido,statusCerrado, cambioDeCantidadDePedido );
     router.post('/Admin/historial', authenticationAdmin,historialAdmin);
-    //router.put('/Admin/cambioPrecio', authenticationAdmin,existPedido,cambioDePrecioFinal);
-    //router.delete('/Admin/bajaPedido', authenticationAdmin,existPedido,bajaPedido);
+    //router.put('/Admin/descuento', authenticationAdmin,existPedido,cambioDePrecioFinal);//en caso de descuentos, PENDIENTE
+    router.delete('/Admin/bajaPedido', authenticationAdmin,existPedido,bajaPedido);
     router.delete('/Admin/MedioPago', authenticationAdmin,deleteMedioDePago);
     router.put('/Admin/MedioPago', authenticationAdmin,upDateMedioDePAgo);
     router.get('/Admin/MedioPago', authenticationAdmin,verMP);
@@ -145,7 +145,32 @@ function verMP(req,res){ // modificar para q cada method tengo un estado activo/
         res.status(404).json("no hay metodos de pago guardados en el listado");
     }
 }
+function bajaPedido(req,res){
+    const resultado= borrarPedido(req.body.pedidoId);
+    if (resultado!==false){
+        res.status(200).json("se ha borrado exitosamente");
+    }  
+}
+function eliminarProductoEnP(req,res){
+    const pId= req.body.pedidoId;
+    const productoName= req.body.productoName;
+    const userDetalle =obtenerDetalle(pId);
 
+    if (userDetalle === false){
+        res.status(404).json("no se pudo realizar el cambio");
+    }else {
+
+        for (const elemento of userDetalle) {
+            if (elemento.name===productoName){
+                const position=userDetalle.indexOf(elemento);
+                userDetalle.splice(position, 1);
+                res.status(200).json("producto eliminado del pedido");
+            }
+        }
+        res.status(404).json("no se encontro el producto");
+    }
+
+}
 
 
 
