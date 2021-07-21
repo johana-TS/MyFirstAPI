@@ -1,8 +1,8 @@
 const express=require('express');
 const router= express.Router();
-const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP, borrarPedido, obtenerDetalle } = require('../datos/pedidos');
+const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP, borrarPedido, obtenerDetalle, pedidoconfirmado, validarPago } = require('../datos/pedidos');
 const { hayStock, cambiarStock } = require('../datos/producto');
-const {  searchUser, datosUsuario, authenticationEsCliente, authenticationAdmin, arrayUsuario } = require('../datos/usuario');
+const {  searchUser, datosUsuario, authenticationEsCliente, authenticationAdmin } = require('../datos/usuario');
 const { loadSwaggerInfo } = require('../middlewares/documentacion');
 
 
@@ -10,11 +10,12 @@ const { loadSwaggerInfo } = require('../middlewares/documentacion');
 function getRouterPedidos(){
     const router=express.Router();
     router.post('/crear', authenticationEsCliente, crearNuevoPedido);
+    router.post('/confirmar', authenticationEsCliente,existPedido, pedidoconfirmado, confirmarPedido);
     router.post('/historial',authenticationEsCliente, verHistorialDePedidos);
-    //router.put('/modificarPedido', authenticationEsCliente,existPedido,agregarProducto);
+    router.put('/modificar', authenticationEsCliente,existPedido,pedidoconfirmado, agregarProducto);
     router.delete('/borrarProducto', authenticationEsCliente,existPedido,eliminarProductoEnP);
 
-    router.put('/Admin/cambioEstado',authenticationAdmin, cambioDeEstadoDePedido);
+    router.put('/Admin/cambioEstado',authenticationAdmin, pedidoconfirmado, cambioDeEstadoDePedido);
     router.put('/Admin/cambioStock',authenticationAdmin, existPedido, existeProductoEnPedido,statusCerrado, cambioDeCantidadDePedido );
     router.post('/Admin/historial', authenticationAdmin,historialAdmin);
     //router.put('/Admin/descuento', authenticationAdmin,existPedido,cambioDePrecioFinal);//en caso de descuentos, PENDIENTE
@@ -29,20 +30,15 @@ function getRouterPedidos(){
 
 function crearNuevoPedido(req, res){
     const datos= req.body; //toma el array de productos del body
-
+    console.log(datos);
     const info= Buffer.from(req.headers.token,'base64'); // me devuelve una cadena en base64..q debo convertir luego
     const [username, psw] = info.toString('utf8').split(':');
 
     const personaId= searchUser(username,psw);
-    const personaObj= datosUsuario(personaId); 
+    const personaObj= datosUsuario(personaId);     
     
-    //console.log('ingreso a crear pedido');
     const newPedido = crearPedido(datos, personaObj);
     //console.log(newPedido);
-
-    //preguntar si el campo direcc es distitnto al guardado en el obj user entonces asignarlo al pedido
-    //newPedido.direcc=datos.direpostcc;
-    //newPedido.pago=datos.pago;
     if (newPedido=== true){         
         return res.status(200).send("se ha registrado exitosamente el pedido realizado" + newPedido);
     }else {
@@ -50,7 +46,42 @@ function crearNuevoPedido(req, res){
     }
 
 }
+function confirmarPedido(req,res){
+    const idPedido= req.body.pedidoId;
+    const direc= req.body.direcc;
+    const pago= req.body.modoPago;
 
+    const pedido= obtenerPedido(idPedido);   
+       
+       if (validarPago(pago)){
+           pedido.pago=pago;
+           pedido.estado="cerrado";
+           pedido.confirm=true;
+           if (direc!==""){
+               pedido.direcc= direc;               
+           }
+            console.log(pedido);
+            res.status(200).send("Pedido CONFIRMADO exitosamente" + pedido);
+           
+        } else {
+            res.status(404).send("el metodo de pago ingresado no es correcto");
+        }
+    
+
+}
+
+function agregarProducto(req,res){
+     const pedidoId= req.body.pedidoId;
+     const{name, description, precioU,cantidad}= req.body;
+     const sumar= {name,description,precioU,cantidad}
+     const detalle= obtenerDetalle(pedidoId);
+     if (detalle===false){
+       res.status(404).send("no se encontro el detalle del pedido");
+     }else {
+         detalle.push(sumar);
+         res.status(200).json(detalle);
+     }
+}
 
 function cambioDeEstadoDePedido(req,res){  //                   cambia el estado del pedido 
     const pedido= Number(req.body.pedidoId);
@@ -62,7 +93,7 @@ function cambioDeEstadoDePedido(req,res){  //                   cambia el estado
         for (let i = 1; i < arrayEstado.length; i++) {  //chekea en el array de estado que exista el dato ingrresado             
             if (arrayEstado[i]=== cambio){
                 existe.estado=cambio;
-                res.status(200).send("ok");
+                res.status(200).json("ok"+ pedido);
             }else {
                 res.status(404).send("no se reconoce el status ingresado");
             }                
@@ -85,7 +116,7 @@ function cambioDeCantidadDePedido(req,res){
         if (resultado===false || resultadoCambio=== false){
             res.status(404).send("no se pudo realizar el cambio");    
         }else{
-            res.status(200).send("ok");
+            res.status(200).json("ok"+ resultado);
         }        
     }else {
         res.status(401).send("no hay stock del producto seleccionado");
@@ -119,7 +150,7 @@ function deleteMedioDePago(req,res){
     const exito=borrarMP(req.body.medioPago);   
    
     if (exito===true){        
-        res.status(200).send("se borro exitosamente");
+        res.status(200).send("se borro exitosamente ");
     }else {
         res.status(406).send("el medio de pago que intenta borra no se encuentra registrado");
     }
@@ -174,8 +205,6 @@ function eliminarProductoEnP(req,res){
 
 
 
-//--------------prueba por consola-----------------///
-//console.log(hayStock("milanga",3546));   FUNCIONA!
 
 
 

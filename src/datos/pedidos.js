@@ -12,7 +12,7 @@ class Pedido {
             this.idUser = persona.id,           //id del usuario
             this.nameU = persona.name,              //nombre del usuario
             this.lastName = persona.lastName, 
-            this.direcc="",               //direcc ingresado por el usuario
+            this.direcc=persona.direcc,               //direcc ingresado por el usuario
             this.cel = persona.cel  ,
             this.confirm=false;             //telefono del usuario
     }
@@ -35,10 +35,10 @@ function crearPedido(detalle,usuarioObj) {
     const newPedido = new Pedido(detalle, usuarioObj);
     newPedido.generarId();   
     arrayPedido.push(newPedido);
-    if (newPedido!== null || newPedido!== undefined || newPedido!==""){
-        return true;
+    if (newPedido=== null || newPedido=== undefined || newPedido===""){
+        return false;
     }else {
-        return false 
+        return true;
     }
 }
 
@@ -60,30 +60,12 @@ function modificarCantidadEnPEdido(pedidoId,productoName,stock){
 
 
 function validarPago(pagoUSer) {  
-    for (let i = 0; i < pago.length; i++) {
-        const p = arrayPago[i];
-        if (p === pagoUSer) {
-            
+    for (const elemento of arrayPago) {
+        if (elemento === pagoUSer) {            
             return true
         }
     }
     return false
-}
-
-function medioDePago(idPedido, pagoUSer) {
-    let msj = "";
-    for (const pedido of arrayPedido) {
-        if (idPedido === pedido.id) {
-            const seleccionado = pedido;
-            if (validarPago(pagoUSer)) {
-                seleccionado.pago = pagoUSer;
-            }return true            
-        } else {           
-            return false
-        }
-    }
-    
-
 }
 
 function existPedido(req,res,next) {
@@ -97,7 +79,7 @@ function existPedido(req,res,next) {
     next(new Error("no existe el pedido ingresado"));
 
 }
-function obtenerPedido(id){ //id del pedido
+function obtenerPedido(id){ 
     
     for (const p of arrayPedido) {
         if (p.id===id){
@@ -108,6 +90,13 @@ function obtenerPedido(id){ //id del pedido
 function statusCerrado(req,res,next){
     for (const p of arrayPedido) {
         if (p.id===req.body.pedidoId && p.id==="cerrado"){
+            return next(new Error("el pedido se encuentra cerrado, no se puede modificar"));
+        }
+    }return next(); 
+}
+function pedidoconfirmado(req,res,next){
+    for (const p of arrayPedido) {
+        if (p.id===req.body.pedidoId && p.confirm===true){
             return next(new Error("el pedido se encuentra cerrado, no se puede modificar"));
         }
     }return next(); 
@@ -208,8 +197,8 @@ module.exports = {
     arrayEstado,
     arrayPago,
     existPedido,
-    medioDePago,
     crearPedido,
+    validarPago,
     modificarCantidadEnPEdido,
     obtenerDetalle,
     existeProductoEnPedido,
@@ -219,7 +208,8 @@ module.exports = {
     statusCerrado,
     borrarMP,
     updateMP,
-    borrarPedido
+    borrarPedido,
+    pedidoconfirmado
   
     
     
@@ -254,11 +244,7 @@ const datos= [{
     "cantidad":4,
     
 },
-{
-    "total":2100,
-    "pago":"tarjeta",
-    "direcc":"direccions ingresada por el user"
-}];
+];
 
 const datos2=[{
     
@@ -268,10 +254,7 @@ const datos2=[{
     "cantidad":4,
     
 },
-{
-    "total":2100,
-    "pago":"tarjeta"
-}];
+];
 
 
 const senior= { //token= 'bWFyY2Vsb1I6NDU2'
@@ -301,5 +284,7 @@ console.log(arrayPedido[1].detalle);
 
 const m=modificarCantidadEnPEdido(789,"milanga",-1);
 console.log(m );
+
+console.log(obtenerDetalle(79))
 
 //-------------------fin prueba por consola----------------------//
