@@ -29,7 +29,7 @@ function modificarProducto(req,res){ //por nombre//
     if (req.body.name!== "" ||req.body.name!== null && req.body.newName!== "" ||req.body.newName!== ""){
 
         const dato= req.body.name;
-        //const reemplazo= req.body.newName;
+        
         const producto= buscarProductoXNombre(dato);
         if (producto===undefined){
             res.status(404).json("no se pudo realizar el cambio, el nombre ingresado no existe en la bd");

@@ -68,7 +68,10 @@ function errorHandler(err,req,res,next){
             res.status(404).send('no ha completado el campo "precio"');
         }  else if (err.message==="Error, no hay listado disponible"){
             res.status(404).json("Error, no hay listado disponible");
+        }  else if(err.message==='no existe el producto que intenta ingresar'){
+            res.status(404).send('no existe el producto que intenta ingresar');
         }
+
 
         //---------pedidos--------
         if(err.message==="No se pudo generar el pedido solicitado"){

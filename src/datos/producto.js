@@ -52,6 +52,14 @@ arrayProducto.push({  "id":"1",
         "precio":300,
         "stock":80
         
+    },
+    {
+        "id":"33",
+        "name":"helado",
+        "description":"postre mousse helada",
+        "precio":200,
+        "stock":80
+        
     }
 );
 
@@ -157,6 +165,15 @@ function existeP(req,res,next){
     }
     next();
 }
+function validarProducto(req,res,next){
+    const name= req.body.name;
+    for (const p of arrayProducto) {
+        if (name===p.name){
+            next();
+        }        
+    }
+    next(new Error('no existe el producto que intenta ingresar'));
+}
 
 function hayStock(n,cantidad){         
         for (const p of arrayProducto) { 
@@ -180,6 +197,7 @@ module.exports ={
     middleExisteArray,
     verProductos,
     existeP,
+    validarProducto,
     hayStock,
     cambiarStock,
     pushProducto,
@@ -188,3 +206,4 @@ module.exports ={
     buscarProductoXID,
     validateCamposModificacion
 }
+

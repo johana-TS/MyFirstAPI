@@ -190,6 +190,17 @@ function borrarPedido(idpedido){
   
 }
 
+function validarCamposAgregar(req,res,next){
+    const {name, cantidad}= req.body;
+    if (name=== null || name=== "" || name===undefined){
+          next( new Error ("no ingreso el nombre del producto"));
+    } else if (cantidad=== null || cantidad=== "" || cantidad===undefined){
+        next( new Error ("no ingreso la cantidad solicitada"));
+    } else {
+        next();
+    }
+}
+
 
 module.exports = {
     
@@ -199,6 +210,7 @@ module.exports = {
     existPedido,
     crearPedido,
     validarPago,
+    validarCamposAgregar,
     modificarCantidadEnPEdido,
     obtenerDetalle,
     existeProductoEnPedido,

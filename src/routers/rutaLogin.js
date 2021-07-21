@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { validarUsuario, obtenetPosicion, arrayUsuario, registrarUsuario, esAdmin, validateCamposRegistro, validateEmail, existUser, validarPsw } = require('../datos/usuario.js');
+const { validarUsuario, registrarUsuario,  validateCamposRegistro, validateEmail, existUser, validarPsw } = require('../datos/usuario.js');
 
 
 function getRouter() {

@@ -1,7 +1,7 @@
 const express=require('express');
 const router= express.Router();
-const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP, borrarPedido, obtenerDetalle, pedidoconfirmado, validarPago } = require('../datos/pedidos');
-const { hayStock, cambiarStock } = require('../datos/producto');
+const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP, borrarPedido, obtenerDetalle, pedidoconfirmado, validarPago, validarCamposAgregar } = require('../datos/pedidos');
+const { hayStock, cambiarStock, existeP, validarProducto, buscarProductoXNombre } = require('../datos/producto');
 const {  searchUser, datosUsuario, authenticationEsCliente, authenticationAdmin } = require('../datos/usuario');
 const { loadSwaggerInfo } = require('../middlewares/documentacion');
 
@@ -9,10 +9,11 @@ const { loadSwaggerInfo } = require('../middlewares/documentacion');
 
 function getRouterPedidos(){
     const router=express.Router();
-    router.post('/crear', authenticationEsCliente, crearNuevoPedido);
+    router.post('/crear', authenticationEsCliente, crearNuevoPedido);//no funicona
     router.post('/confirmar', authenticationEsCliente,existPedido, pedidoconfirmado, confirmarPedido);
     router.post('/historial',authenticationEsCliente, verHistorialDePedidos);
-    router.put('/modificar', authenticationEsCliente,existPedido,pedidoconfirmado, agregarProducto);
+    router.put('/agregar', authenticationEsCliente,validarCamposAgregar, existPedido,pedidoconfirmado,validarProducto, agregarProducto);
+    //router.put('/modificar', authenticationEsCliente,existPedido,pedidoconfirmado, );
     router.delete('/borrarProducto', authenticationEsCliente,existPedido,eliminarProductoEnP);
 
     router.put('/Admin/cambioEstado',authenticationAdmin, pedidoconfirmado, cambioDeEstadoDePedido);
@@ -72,12 +73,19 @@ function confirmarPedido(req,res){
 
 function agregarProducto(req,res){
      const pedidoId= req.body.pedidoId;
-     const{name, description, precioU,cantidad}= req.body;
-     const sumar= {name,description,precioU,cantidad}
+     const{name, cantidad}= req.body;
+     const sumar= {name,cantidad}
      const detalle= obtenerDetalle(pedidoId);
      if (detalle===false){
        res.status(404).send("no se encontro el detalle del pedido");
      }else {
+         const pprecio= buscarProductoXNombre(name);
+         if (pprecio===undefined){
+            res.status(404).json("no se encontro el producto ingresado");
+         } else {
+             sumar.description=pprecio.description;
+             sumar.precio=pprecio.precio;
+         }
          detalle.push(sumar);
          res.status(200).json(detalle);
      }

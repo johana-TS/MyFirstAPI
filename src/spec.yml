@@ -327,7 +327,10 @@ paths:
                        type: number
                        description: quantity of selected product
                   example:
-
+                    name: "milanga"
+                    description: "lo que sea"
+                    precioU: 300
+                    cantidad: 4 
           responses:
                   "200":
                     description: its OK , successfully create a new order 
@@ -378,7 +381,7 @@ paths:
                       application/json:
                         schema:
                           type: array
-    /Pedido/modificar:
+    /Pedido/agregar:
       put:
           parameters:
               - name: token
@@ -402,10 +405,6 @@ paths:
                     name:
                       type: string 
                       description: the selected product name
-                    description:
-                      type: string
-                    precioU:
-                      type: number
                     cantidad:
                       type: number
           responses:
@@ -420,8 +419,7 @@ paths:
                     content:
                       application/json:
                         schema:
-                          type: array
-        
+                          type: array   
 
     /Pedido/historial: 
       post:
