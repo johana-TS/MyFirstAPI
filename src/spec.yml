@@ -181,12 +181,6 @@ paths:
                     newName:
                       type: string 
                       description: name by which you are going to rename the selected product 
-                    description:
-                      type: string
-                    precio:
-                      type: number
-                    stock:
-                      type: number
           responses:
                   "200":
                     description: its OK , successfully modify product 

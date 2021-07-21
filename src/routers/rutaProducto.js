@@ -1,5 +1,5 @@
 const express=require('express');
-const {  existeP, pushProducto, buscarProductoXNombre, buscarProductoXID, middleExisteArray, verProductos, validateCamposProductos, validateCamposModificacion } = require('../datos/producto');
+const {  existeP, pushProducto, buscarProductoXNombre, buscarProductoXID, middleExisteArray, verProductos, validateCamposProductos, validateCamposModificacion, arrayProducto } = require('../datos/producto');
 const {  authenticationAdmin, authenticationEsCliente, } = require('../datos/usuario');
 
 const router = express.Router();
@@ -77,7 +77,7 @@ function modificarProductoAll(req,res){ //cambia cualquier campo del producto
 function deletProducto(req,res){
     const id=req.body.id;    
     if (buscarProductoXID(id)){
-        res.status(200).send('se ha eliminado el producto de la lista');
+        res.status(200).json(`se ha eliminado el producto de la lista `+ arrayProducto);
     }else {
         res.status(404).send('no se ha encontrado el producto ingresado');
     }

@@ -1,3 +1,4 @@
+const { arrayProducto } = require("./producto");
 const { arrayUsuario, Usuario } = require("./usuario");
 
 
@@ -6,13 +7,13 @@ class Pedido {
             this.id = "", 
             this.pedidoFecha=new Date();             //id del pedido
             this.detalle = detalle,   //array con los productos y sus precios unitario
-            this.total = '',                      //generar el total de la suma de productos
+            this.total = "",                      //generar el total de la suma de productos
             this.estado = "",      //estado del pedido
             this.pago = "",            //ingresado por el user y debo comparar conel array de pagos
             this.idUser = persona.id,           //id del usuario
             this.nameU = persona.name,              //nombre del usuario
             this.lastName = persona.lastName, 
-            this.direcc=persona.direcc,               //direcc ingresado por el usuario
+            this.direcc=persona.adress,               //direcc ingresado por el usuario
             this.cel = persona.cel  ,
             this.confirm=false;             //telefono del usuario
     }
@@ -24,6 +25,22 @@ Pedido.prototype.generarId = function generarId() { //se asigna id y estado de i
     this.estado = "nuevo";
 }
 
+function actualizarTotal(id){// no funciona
+    const detalle= obtenerDetalle(id);
+    let sumar=0;
+    if (detalle.length>0 && detalle!== false){
+        for (const elemento of detalle) {
+            console.log(elemento);
+         
+            sumar+= Number(elemento.precio) *  Number(elemento.cantidad);
+        }
+    } else if (detalle!== false) {
+        sumar+= Number (detalle.precio) * Number( detalle.cantidad);
+    }   
+
+    return sumar;
+    
+}
 const arrayPago = ["efectivo", "tarjeta", "QR"]; // debo convirtiendolo en objs PENDIENTE
 const arrayEstado = ["nuevo", "confirmado", "preparando", "enviado", "cancelado", "entregado","cerrado"];
 
@@ -33,7 +50,9 @@ const arrayPedido = [];
 function crearPedido(detalle,usuarioObj) {
  
     const newPedido = new Pedido(detalle, usuarioObj);
-    newPedido.generarId();   
+    newPedido.generarId(); 
+    //newPedido.total= actualizarTotal(newPedido.id);
+  
     arrayPedido.push(newPedido);
     if (newPedido=== null || newPedido=== undefined || newPedido===""){
         return false;
@@ -234,16 +253,16 @@ const datos= [{
     
     "name":"milanga",
     "description":"cocion: frita con papas fritas",
-    "precioU":"300",
+    "precio":"300",
     "cantidad":2,
     
     
 },
 {
     
-    "name":"jfhg",
+    "name":"Helado",
     "description":"cocion: frita con papas fritas",
-    "precioU":"300",
+    "precio":"300",
     "cantidad":1,
     
     
@@ -285,18 +304,17 @@ const senior= { //token= 'bWFyY2Vsb1I6NDU2'
 
 const b=crearPedido(datos, arrayUsuario[1]);
 b.estado="cerrado";
+const c= crearPedido(datos2,senior);
 
-const c= crearPedido(datos2,senior)
+
 arrayPedido[1].estado="en proceso";
 arrayPedido[1].id=789;
+arrayPedido[1].total= actualizarTotal(789);
+arrayPedido[0].total=actualizarTotal(arrayPedido[0].id);
+
 
 console.log(arrayPedido);
-console.log(arrayPedido[1].detalle);
+console.log(obtenerDetalle(arrayPedido[1].id)) //funciona
 
-
-const m=modificarCantidadEnPEdido(789,"milanga",-1);
-console.log(m );
-
-console.log(obtenerDetalle(79))
 
 //-------------------fin prueba por consola----------------------//

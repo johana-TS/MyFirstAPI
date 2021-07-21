@@ -194,6 +194,7 @@ function cambiarStock(n, cantidad){  //el admin modifica el stock en array de pr
 
 
 module.exports ={
+    arrayProducto,
     middleExisteArray,
     verProductos,
     existeP,

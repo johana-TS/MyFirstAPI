@@ -41,6 +41,7 @@ function crearNuevoPedido(req, res){
     const newPedido = crearPedido(datos, personaObj);
     //console.log(newPedido);
     if (newPedido=== true){         
+        //actualizo el monto total a pagar
         return res.status(200).send("se ha registrado exitosamente el pedido realizado" + newPedido);
     }else {
         return res.status(404).send("No se pudo generar el pedido solicitado");
@@ -72,25 +73,33 @@ function confirmarPedido(req,res){
 }
 
 function agregarProducto(req,res){
-     const pedidoId= req.body.pedidoId;
-     const{name, cantidad}= req.body;
-     const sumar= {name,cantidad}
-     const detalle= obtenerDetalle(pedidoId);
-     if (detalle===false){
-       res.status(404).send("no se encontro el detalle del pedido");
-     }else {
-         const pprecio= buscarProductoXNombre(name);
-         if (pprecio===undefined){
-            res.status(404).json("no se encontro el producto ingresado");
-         } else {
-             sumar.description=pprecio.description;
-             sumar.precio=pprecio.precio;
-         }
-         detalle.push(sumar);
-         res.status(200).json(detalle);
-     }
-}
+        const pedidoId= req.body.pedidoId;
+        const{name, cantidad}= req.body;
+        const sumar= {name,cantidad};
 
+        const detalle= obtenerDetalle(pedidoId);
+        if (detalle===false ){
+            res.status(404).send("no se encontro el detalle del pedido");
+        }else {
+            
+            const pprecio= buscarProductoXNombre(name);
+            for (const elemento of detalle) {
+                if (elemento.name===name){
+                    res.status(406).json("el producto ya ha sido ingresario anteriormente" + detalle);
+                } 
+            }
+            if (pprecio===undefined){
+                res.status(404).json("no se encontro el producto ingresado");
+            } else {
+                sumar.description=pprecio.description;
+                sumar.precio=pprecio.precio;
+            }
+            detalle.push(sumar);
+            res.status(200).json(detalle);
+        }
+    
+    }
+    
 function cambioDeEstadoDePedido(req,res){  //                   cambia el estado del pedido 
     const pedido= Number(req.body.pedidoId);
     const cambio=req.body.estado;    
