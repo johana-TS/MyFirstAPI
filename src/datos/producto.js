@@ -183,7 +183,7 @@ function validarProducto(req,res,next){
 
 function hayStock(n,cantidad){         
         for (const p of arrayProducto) { 
-            if (n===p.name && p.stock>0 || p.stock>cantidad) {  
+            if (n===p.name && p.stock>0 && p.stock>cantidad) {  
                 return true
             } 
         } return false

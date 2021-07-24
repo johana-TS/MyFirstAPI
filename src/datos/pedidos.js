@@ -269,7 +269,8 @@ module.exports = {
     borrarMP,
     updateMP,
     borrarPedido,
-    pedidoconfirmado
+    pedidoconfirmado,
+    actualizarTotal
   
     
     

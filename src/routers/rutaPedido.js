@@ -1,6 +1,6 @@
 const express=require('express');
 const router= express.Router();
-const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP, borrarPedido, obtenerDetalle, pedidoconfirmado, validarPago, validarCamposAgregar, validarDetalle, existeMyPedido } = require('../datos/pedidos');
+const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP, borrarPedido, obtenerDetalle, pedidoconfirmado, validarPago, validarCamposAgregar, validarDetalle, existeMyPedido, actualizarTotal } = require('../datos/pedidos');
 const { hayStock, cambiarStock,  validarProducto, buscarProductoXNombre } = require('../datos/producto');
 const {  searchUser, datosUsuario, authenticationEsCliente, authenticationAdmin } = require('../datos/usuario');
 const { loadSwaggerInfo } = require('../middlewares/documentacion');
@@ -12,7 +12,7 @@ function getRouterPedidos(){
     router.post('/crear', authenticationEsCliente,validarDetalle, crearNuevoPedido);//no funicona
     router.post('/confirmar', authenticationEsCliente,existeMyPedido, pedidoconfirmado, confirmarPedido);
     router.post('/historial',authenticationEsCliente, verHistorialDePedidos);
-    router.put('/agregar', authenticationEsCliente,validarCamposAgregar,pedidoconfirmado, validarProducto,existeMyPedido, agregarProducto);
+    router.put('/agregar', authenticationEsCliente,validarCamposAgregar,pedidoconfirmado,validarProducto,existeMyPedido, agregarProducto);
     router.put('/modificar', authenticationEsCliente,existeMyPedido,pedidoconfirmado,cambioDeCantidadDePedido );
     router.delete('/borrarProducto', authenticationEsCliente,existeMyPedido,eliminarProductoEnP);
 
@@ -72,27 +72,37 @@ function agregarProducto(req,res){
         const pedidoId= req.body.pedidoId;
         const{name, cantidad}= req.body;
         const sumar= {name,cantidad};
+        const hay=hayStock(name,cantidad)
 
-        const detalle= obtenerDetalle(pedidoId);
-        if (detalle===false ){
-            res.status(404).send("no se encontro el detalle del pedido");
-        }else {
-            
-            const pprecio= buscarProductoXNombre(name);
-            for (const elemento of detalle) {
-                if (elemento.name===name){
-                    res.status(406).json("el producto ya ha sido ingresario anteriormente" + detalle);
+        if (cantidad<=0 ){
+            res.status(406).json('error, la cantidad ingresada debe ser mayor a cero');
+        } else if (hay===false){
+            res.status(406).json('error, no hay stock del producto solicitado');
+        } else {
+
+            const detalle= obtenerDetalle(pedidoId);
+            if (detalle===false ){
+                res.status(404).send("no se encontro el detalle del pedido");
+            }else {
+                
+                const pprecio= buscarProductoXNombre(name);
+                for (const elemento of detalle) {
+                    if (elemento.name===name){
+                        res.status(406).json("el producto ya ha sido ingresario anteriormente" + detalle);
+                    }
                 }
+                if (pprecio===undefined){
+                    res.status(404).json("no se encontro el producto ingresado");
+                } else {
+                    sumar.description=pprecio.description;
+                    sumar.precio=pprecio.precio;
+                }
+                detalle.push(sumar);
+                const pedido= obtenerPedido(pedidoId);
+                pedido.total= actualizarTotal(pedido.detalle); //obtener pedido y actualizar el total a pagar
+                console.log(pedido);
+                res.status(200).json(detalle);
             }
-            if (pprecio===undefined){
-                res.status(404).json("no se encontro el producto ingresado");
-            } else {
-                sumar.description=pprecio.description;
-                sumar.precio=pprecio.precio;
-            }
-            //obtener pedido y actualizar el total a pagar
-            detalle.push(sumar);
-            res.status(200).json(detalle);
         }
     
  }
@@ -213,8 +223,11 @@ function eliminarProductoEnP(req,res){
             if (elemento.name===productoName){
                 const position=userDetalle.indexOf(elemento);
                 userDetalle.splice(position, 1);
-                //obtnener producto y actualizar el total
-                res.status(200).json("producto eliminado del pedido"+ elemento);
+
+                const pedido= obtenerPedido(pId);
+                pedido.total= actualizarTotal(pedido.detalle); //obtener pedido y actualizar el total a pagar
+                console.log(pedido);
+                res.status(200).json("producto eliminado del pedido"+ userDetalle);
             }
         }
         res.status(404).json("no se encontro el producto");
