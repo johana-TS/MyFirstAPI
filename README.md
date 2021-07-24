@@ -42,4 +42,4 @@ para realizar las pruebas de autenticacion se utilizo la funcion btoa() and atob
 
 -token= 'am9oYToxMjM=' del admin/psw: joha:123
 
--idPedido: 789
+-token: 'bWFyY2Vsb1I6NDU2' del cliente/psw marceloR:456, idPedido: 789

@@ -1,5 +1,5 @@
-const { arrayProducto } = require("./producto");
-const { arrayUsuario, Usuario } = require("./usuario");
+const { arrayProducto, buscarProductoXNombre } = require("./producto");
+const { arrayUsuario, datosUsuario } = require("./usuario");
 
 
 class Pedido {
@@ -20,61 +20,65 @@ class Pedido {
 
 }
 
-Pedido.prototype.generarId = function generarId() { //se asigna id y estado de inicio del pedido "nuevo"
+Pedido.prototype.generarId = function generarId() { 
     this.id = new Date().getTime();
     this.estado = "nuevo";
 }
 
-function actualizarTotal(id){// no funciona
-    const detalle= obtenerDetalle(id);
-    let sumar=0;
-    if (detalle.length>0 && detalle!== false){
-        for (const elemento of detalle) {
-            console.log(elemento);
-         
-            sumar+= Number(elemento.precio) *  Number(elemento.cantidad);
-        }
-    } else if (detalle!== false) {
-        sumar+= Number (detalle.precio) * Number( detalle.cantidad);
-    }   
-
+function actualizarTotal(datos){    
+    let sumar=0;   
+    for (const elemento of datos) {
+        console.log(elemento);
+     
+        sumar+= Number(elemento.precio) *  Number(elemento.cantidad);
+    }
     return sumar;
     
 }
 const arrayPago = ["efectivo", "tarjeta", "QR"]; // debo convirtiendolo en objs PENDIENTE
-const arrayEstado = ["nuevo", "confirmado", "preparando", "enviado", "cancelado", "entregado","cerrado"];
+const arrayEstado = ["preparando", "enviado", "cancelado", "entregado","cerrado"];
 
 const arrayPedido = []; 
 
 
 function crearPedido(detalle,usuarioObj) {
- 
     const newPedido = new Pedido(detalle, usuarioObj);
-    newPedido.generarId(); 
-    //newPedido.total= actualizarTotal(newPedido.id);
-  
+    newPedido.generarId();     
     arrayPedido.push(newPedido);
+    console.log( typeof newPedido.detalle)
+    newPedido.total= actualizarTotal(newPedido.detalle);
     if (newPedido=== null || newPedido=== undefined || newPedido===""){
         return false;
     }else {
-        return true;
+        return newPedido;
     }
 }
 
-function modificarCantidadEnPEdido(pedidoId,productoName,stock){
+function modificarCantidadEnPEdido(pedidoId,productoName,unidades){
 
     for (const p of arrayPedido) {
         if (pedidoId=== p.id){
-            const producto=p.detalle;
-            for (const elemento of producto) {
+            const productos=p.detalle;
+            for (const elemento of productos) {
                 if (elemento.name===productoName){
-                   elemento.cantidad+=stock;
-                   return true;
+                    const correcto= elemento.cantidad+unidades;
+                    if (correcto<=0){
+                        const position=productos.indexOf(elemento.name);
+                        productos.splice(position, 1);//borrar el producto de la lista
+                        p.total= actualizarTotal(p.detalle); 
+                        return false 
+                    }else {
+                        elemento.cantidad+=unidades;
+                        p.total= actualizarTotal(p.detalle);   
+                        console.log(p.total);                   
+                        return elemento;
+                    }
                 }
             }
-        }
+
+        }    
     }
-    return false;
+   
 }
 
 
@@ -86,7 +90,20 @@ function validarPago(pagoUSer) {
     }
     return false
 }
-
+function existeMyPedido(req,res,next){
+    const info= Buffer.from(req.headers.token,'base64'); // me devuelve una cadena en base64..q debo convertir luego
+    const [username, psw] = info.toString('utf8').split(':');
+    
+    const personaObj= datosUsuario(username,psw);   
+    const idPedido= Number(req.body.pedidoId);
+    
+    for (const pedido of arrayPedido) {
+        if (pedido.id===idPedido && pedido.idUser===personaObj.id) {
+            return next();
+        }
+    }
+    next(new Error("no existe pedido a su nombre, con ese identificados ingresado"));
+}
 function existPedido(req,res,next) {
     const idPedido= Number(req.body.pedidoId);
     
@@ -98,20 +115,20 @@ function existPedido(req,res,next) {
     next(new Error("no existe el pedido ingresado"));
 
 }
-function obtenerPedido(id){ 
-    
-    for (const p of arrayPedido) {
-        if (p.id===id){
-            return p
-        }
-    }return false
+ function obtenerPedido(id){ 
+  
+     for (const p of arrayPedido) {
+         if (p.id===id){
+             return p
+         }
+     }return false
 }
 function statusCerrado(req,res,next){
     for (const p of arrayPedido) {
         if (p.id===req.body.pedidoId && p.id==="cerrado"){
             return next(new Error("el pedido se encuentra cerrado, no se puede modificar"));
         }
-    }return next(); 
+    } return next(); 
 }
 function pedidoconfirmado(req,res,next){
     for (const p of arrayPedido) {
@@ -140,7 +157,6 @@ function existeProductoEnPedido(req,res,next){
             const detalle= p.detalle;
             for (const articulo of detalle) {                    
                 if ( articulo.name===nameArt ){
-                    console.log("entro al midle de existe produ en el pedido"+articulo.name + nameArt);
                     return  next();
                 }
             }
@@ -219,6 +235,17 @@ function validarCamposAgregar(req,res,next){
         next();
     }
 }
+function validarDetalle(req,res,next){
+    const detalle=req.body;
+    let existe=true;
+    for (const elemento of detalle) {
+        existe= buscarProductoXNombre(elemento.name);
+        console.log(existe);
+       if (existe===false){
+        next (new Error ('no existe el producto ingresado'));
+        }
+    } return next();
+}
 
 
 module.exports = {
@@ -227,9 +254,11 @@ module.exports = {
     arrayEstado,
     arrayPago,
     existPedido,
+    existeMyPedido,
     crearPedido,
     validarPago,
     validarCamposAgregar,
+    validarDetalle,
     modificarCantidadEnPEdido,
     obtenerDetalle,
     existeProductoEnPedido,
@@ -293,7 +322,7 @@ const senior= { //token= 'bWFyY2Vsb1I6NDU2'
     "user":'marceloR',
     "psw" :' 456',
     "psw2":' 456',
-    "name":'Marc elo',
+    "name":'Marcelo',
     "lastName":'Romero',
     "email":'email@email.com',
     "adress ": 'adress 1456 dto 4',
@@ -302,19 +331,16 @@ const senior= { //token= 'bWFyY2Vsb1I6NDU2'
 };
 
 
-const b=crearPedido(datos, arrayUsuario[1]);
+const b=crearPedido(datos, arrayUsuario[2]);
 b.estado="cerrado";
 const c= crearPedido(datos2,senior);
 
 
 arrayPedido[1].estado="en proceso";
 arrayPedido[1].id=789;
-arrayPedido[1].total= actualizarTotal(789);
-arrayPedido[0].total=actualizarTotal(arrayPedido[0].id);
+//arrayPedido[1].total= actualizarTotal(789);
+//arrayPedido[0].total=actualizarTotal(arrayPedido[0].id);
 
 
 console.log(arrayPedido);
-console.log(obtenerDetalle(arrayPedido[1].id)) //funciona
-
-
-//-------------------fin prueba por consola----------------------//
+console.log(obtenerDetalle(arrayPedido[1].id)); //funciona

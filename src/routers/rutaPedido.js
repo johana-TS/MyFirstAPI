@@ -1,7 +1,7 @@
 const express=require('express');
 const router= express.Router();
-const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP, borrarPedido, obtenerDetalle, pedidoconfirmado, validarPago, validarCamposAgregar } = require('../datos/pedidos');
-const { hayStock, cambiarStock, existeP, validarProducto, buscarProductoXNombre } = require('../datos/producto');
+const { existPedido,  crearPedido, historial, existeProductoEnPedido, arrayPedido, historialFull, arrayEstado, obtenerPedido, statusCerrado, modificarCantidadEnPEdido, arrayPago, borrarMP, updateMP, borrarPedido, obtenerDetalle, pedidoconfirmado, validarPago, validarCamposAgregar, validarDetalle, existeMyPedido } = require('../datos/pedidos');
+const { hayStock, cambiarStock,  validarProducto, buscarProductoXNombre } = require('../datos/producto');
 const {  searchUser, datosUsuario, authenticationEsCliente, authenticationAdmin } = require('../datos/usuario');
 const { loadSwaggerInfo } = require('../middlewares/documentacion');
 
@@ -9,14 +9,14 @@ const { loadSwaggerInfo } = require('../middlewares/documentacion');
 
 function getRouterPedidos(){
     const router=express.Router();
-    router.post('/crear', authenticationEsCliente, crearNuevoPedido);//no funicona
-    router.post('/confirmar', authenticationEsCliente,existPedido, pedidoconfirmado, confirmarPedido);
+    router.post('/crear', authenticationEsCliente,validarDetalle, crearNuevoPedido);//no funicona
+    router.post('/confirmar', authenticationEsCliente,existeMyPedido, pedidoconfirmado, confirmarPedido);
     router.post('/historial',authenticationEsCliente, verHistorialDePedidos);
-    router.put('/agregar', authenticationEsCliente,validarCamposAgregar, existPedido,pedidoconfirmado,validarProducto, agregarProducto);
-    //router.put('/modificar', authenticationEsCliente,existPedido,pedidoconfirmado, );
-    router.delete('/borrarProducto', authenticationEsCliente,existPedido,eliminarProductoEnP);
+    router.put('/agregar', authenticationEsCliente,validarCamposAgregar,pedidoconfirmado, validarProducto,existeMyPedido, agregarProducto);
+    router.put('/modificar', authenticationEsCliente,existeMyPedido,pedidoconfirmado,cambioDeCantidadDePedido );
+    router.delete('/borrarProducto', authenticationEsCliente,existeMyPedido,eliminarProductoEnP);
 
-    router.put('/Admin/cambioEstado',authenticationAdmin, pedidoconfirmado, cambioDeEstadoDePedido);
+    router.put('/Admin/cambioEstado',authenticationAdmin,existPedido, pedidoconfirmado, cambioDeEstadoDePedido);
     router.put('/Admin/cambioStock',authenticationAdmin, existPedido, existeProductoEnPedido,statusCerrado, cambioDeCantidadDePedido );
     router.post('/Admin/historial', authenticationAdmin,historialAdmin);
     //router.put('/Admin/descuento', authenticationAdmin,existPedido,cambioDePrecioFinal);//en caso de descuentos, PENDIENTE
@@ -27,24 +27,20 @@ function getRouterPedidos(){
 
     return router;
 }
-
-
 function crearNuevoPedido(req, res){
-    const datos= req.body; //toma el array de productos del body
+    const datos= req.body; 
     console.log(datos);
     const info= Buffer.from(req.headers.token,'base64'); // me devuelve una cadena en base64..q debo convertir luego
     const [username, psw] = info.toString('utf8').split(':');
-
-    const personaId= searchUser(username,psw);
-    const personaObj= datosUsuario(personaId);     
     
+    const personaObj= datosUsuario(username,psw);   
     const newPedido = crearPedido(datos, personaObj);
-    //console.log(newPedido);
-    if (newPedido=== true){         
-        //actualizo el monto total a pagar
-        return res.status(200).send("se ha registrado exitosamente el pedido realizado" + newPedido);
-    }else {
+    
+    if (newPedido=== false){         
         return res.status(404).send("No se pudo generar el pedido solicitado");
+    }else {
+        console.log(newPedido);
+        return res.status(200).json(`se ha registrado exitosamente el pedido realizado` +newPedido );
     }
 
 }
@@ -86,7 +82,7 @@ function agregarProducto(req,res){
             for (const elemento of detalle) {
                 if (elemento.name===name){
                     res.status(406).json("el producto ya ha sido ingresario anteriormente" + detalle);
-                } 
+                }
             }
             if (pprecio===undefined){
                 res.status(404).json("no se encontro el producto ingresado");
@@ -94,27 +90,32 @@ function agregarProducto(req,res){
                 sumar.description=pprecio.description;
                 sumar.precio=pprecio.precio;
             }
+            //obtener pedido y actualizar el total a pagar
             detalle.push(sumar);
             res.status(200).json(detalle);
         }
     
-    }
+ }
     
 function cambioDeEstadoDePedido(req,res){  //                   cambia el estado del pedido 
     const pedido= Number(req.body.pedidoId);
     const cambio=req.body.estado;    
     const existe=  obtenerPedido(pedido);
 
+    let resultado=false;
   
     if (existe.estado !== "cerrado" ){
-        for (let i = 1; i < arrayEstado.length; i++) {  //chekea en el array de estado que exista el dato ingrresado             
-            if (arrayEstado[i]=== cambio){
+        for (let i=0; i<= arrayEstado.length;i++) {  //chekea en el array de estado que exista el dato ingresado             
+            if (arrayEstado[i] === cambio){
                 existe.estado=cambio;
-                res.status(200).json("ok"+ pedido);
-            }else {
-                res.status(404).send("no se reconoce el status ingresado");
-            }                
-        }           
+                resultado= true;               
+            }  
+        }                       
+        if (resultado===true){
+            res.status(200).json("ok"+ pedido);
+        } else{
+            res.status(404).send("no se reconoce el status ingresado");
+        }
     } else{
         res.status(406).send("el pedido ingresado se encuentra cerrado");    
     }
@@ -125,15 +126,15 @@ function cambioDeCantidadDePedido(req,res){
     const producto=req.body.name;
     const cantidad= Number(req.body.cantidad);    
     const ok= hayStock(producto,cantidad);
-    
+
     if ( ok=== true){                 
         const resultadoCambio= cambiarStock(producto,cantidad); //actualizo la cantidad en el array de productos  
         const resultado= modificarCantidadEnPEdido(pedido,producto,cantidad); //cambio la cantidad en el array de pedido
-               
+       
         if (resultado===false || resultadoCambio=== false){
-            res.status(404).send("no se pudo realizar el cambio");    
+            res.status(404).send("el cambio genero que se  borre el producto del pedido");    
         }else{
-            res.status(200).json("ok"+ resultado);
+            res.status(200).json(resultado);
         }        
     }else {
         res.status(401).send("no hay stock del producto seleccionado");
@@ -212,7 +213,8 @@ function eliminarProductoEnP(req,res){
             if (elemento.name===productoName){
                 const position=userDetalle.indexOf(elemento);
                 userDetalle.splice(position, 1);
-                res.status(200).json("producto eliminado del pedido");
+                //obtnener producto y actualizar el total
+                res.status(200).json("producto eliminado del pedido"+ elemento);
             }
         }
         res.status(404).json("no se encontro el producto");

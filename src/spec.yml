@@ -11,7 +11,7 @@ servers:
 #------para realizar las pruebas--------------
 #token= 'bWFyaTozMjE='del cliente: mari psw: 321 
 #token= 'am9oYToxMjM=' del admin: joha psw: 123
-#numero de pedido : 789
+#numero de pedido : 789  de ("marceloR:456") token: 'bWFyY2Vsb1I6NDU2'
 
 paths:
     /usuario/login:
@@ -314,7 +314,7 @@ paths:
                        description:  current name of the product to order
                      description:
                        type: string
-                     precioU:
+                     precio:
                        type: number
                        description: price b y unit
                      cantidad:
@@ -323,7 +323,7 @@ paths:
                   example:
                     name: "milanga"
                     description: "lo que sea"
-                    precioU: 300
+                    precio: 300
                     cantidad: 4 
           responses:
                   "200":
@@ -349,6 +349,7 @@ paths:
                   type: string
                 example: 'bWFyaTozMjE='
           description:  the customer confirm a order 
+          summary: endpoint to confirm the order
           requestBody:
             required: true
             content:
@@ -364,7 +365,7 @@ paths:
                        type: string                          
           responses:
                   "200":
-                    description: its OK , successfully confirm a new order 
+                    description: its OK , successfully confirm the order 
                     content:
                       application/json:
                         schema:
@@ -410,6 +411,45 @@ paths:
                           type: array
                   "404":
                     description: Error, the change could not be made, product is not found
+                    content:
+                      application/json:
+                        schema:
+                          type: array   
+    /Pedido/modificar:
+      put:
+          parameters:
+              - name: token
+                in: header
+                description: token to be passed as a header
+                required: true
+                schema:
+                  type: string
+                example: 'bWFyY2Vsb1I6NDU2'
+          description: the customer can modify the quantity of units of a product to order
+          summary: endpoint to modify the quantity of units of a product
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type:  object
+                  properties:          
+                    pedidoId:
+                      type: number    
+                    name:
+                      type: string 
+                      description: the selected product name
+                    cantidad:
+                      type: number
+          responses:
+                  "200":
+                    description: its OK , successfully modification
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  "404":
+                    description: Error, the change could not be made
                     content:
                       application/json:
                         schema:

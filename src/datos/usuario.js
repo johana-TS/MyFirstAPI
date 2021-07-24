@@ -28,7 +28,9 @@ let nuevo = new Usuario('joha', '123', '123', 'johana', 'torres', 'to@toto.com',
 nuevo.generarId();
 arrayUsuario.push(nuevo);
 
-//console.log(arrayUsuario);
+let nuevo2 = new Usuario('marceloR', '456', '456', 'Marcelo', 'Romero', 'email@email.com', 'olmo 1010', '234545865');
+nuevo2.generarId();
+arrayUsuario.push(nuevo2);
 
 //-------------fin de prueba------------------------
 function searchUser(usuario, psw) {
@@ -163,11 +165,12 @@ function esAdmin(username) {
    }
    return false
 }
-function datosUsuario(id) {
+function datosUsuario(nickname,psw) {
    for (const user of arrayUsuario) {
-      if (user === id) {
-         persona = user;
-         return persona
+      if (user.user === nickname && user.psw===psw) {
+         const persona= user;
+         return persona;
+
       }
    }
 }
@@ -180,6 +183,8 @@ let c = new Usuario('mari', '321', '321', 'Maria ', 'Lopez', 'tomate@toto.com', 
 c.id=852;
 arrayUsuario.push(c);
 console.log(arrayUsuario)
+const mostrat=datosUsuario("mari","321");
+console.log(`${mostrat.user}  " aca esta la funcion datos usuario"`);
 //----------------fin de prueba---------------------
 
 

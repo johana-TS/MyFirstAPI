@@ -16,7 +16,7 @@ Producto.prototype.generarId= function generarId() {
 const arrayProducto=[];
 
 arrayProducto.push({  "id":"1",
-        "name":" PASTEL DE SALMÓN Y ESPINACAS",
+        "name":"pastel",
         "descripcion":"bla bla bla",
         "stock":20,
         "precio":200
@@ -24,15 +24,15 @@ arrayProducto.push({  "id":"1",
     },
     {
         "id":"2",
-        "name":"CANELONES DE POLLO ESTILO ROSSINI",
+        "name":"canelones",
         "descripcion":"bla bla bla  ",
         "stock":15,
         "precio":300
     },
     {
         "id":"3",
-        "name":"SOLOMILLO WELLINGTON DE CERDO CON CHAMPIÑONES",
-        "descripcion":"hamburguesa simple, solo agregado de queso",
+        "name":"tarta",
+        "descripcion":"de verduras",
         "stock":50,
         "precio":250
 
@@ -47,7 +47,7 @@ arrayProducto.push({  "id":"1",
     },
     {
         "id":"45",
-        "name":"milanesa napolitana",
+        "name":"hamburguesa",
         "description":"cocion: frita con papas fritas",
         "precio":300,
         "stock":80
@@ -56,6 +56,14 @@ arrayProducto.push({  "id":"1",
     {
         "id":"33",
         "name":"helado",
+        "description":"postre mousse helada",
+        "precio":200,
+        "stock":80
+        
+    },
+    {
+        "id":"56",
+        "name":"flan",
         "description":"postre mousse helada",
         "precio":200,
         "stock":80
@@ -114,17 +122,15 @@ function buscarProductoXNombre(nombre){
             return plato;
         }
     } 
-    return undefined;
+    return false;
 }
 
-function buscarProductoXID(id){
-    console.log(arrayProducto);
+function buscarProductoXID(id){ //para borrar producto
+   // console.log(arrayProducto);
     for (const producto of arrayProducto) {
         if (producto.id === id){
             const position=arrayProducto.indexOf(producto);
-           arrayProducto.splice(position, 1);
-            //console.log(elementoEliminado);
-           
+            arrayProducto.splice(position, 1);      
             return true;
         }
     }
@@ -166,18 +172,18 @@ function existeP(req,res,next){
     next();
 }
 function validarProducto(req,res,next){
-    const name= req.body.name;
+    const nameP= req.body.name;
     for (const p of arrayProducto) {
-        if (name===p.name){
-            next();
+        if (nameP===p.name){
+             next();
         }        
     }
-    next(new Error('no existe el producto que intenta ingresar'));
+    return  next(new Error('no existe el producto que intenta ingresar'));
 }
 
 function hayStock(n,cantidad){         
         for (const p of arrayProducto) { 
-            if (n===p.name && p.stock>cantidad) {  
+            if (n===p.name && p.stock>0 || p.stock>cantidad) {  
                 return true
             } 
         } return false
@@ -186,7 +192,7 @@ function hayStock(n,cantidad){
 function cambiarStock(n, cantidad){  //el admin modifica el stock en array de producto no de pedido
         for (const p of arrayProducto) { 
             if (n===p.name){
-                p.stock+=cantidad;                 
+                p.stock+=cantidad;             
                 return true;
             }            
         } return false;

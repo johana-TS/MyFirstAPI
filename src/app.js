@@ -4,7 +4,7 @@ const { loadSwaggerInfo } = require('./middlewares/documentacion');
 const {  getRouter } = require('./routers/rutaLogin');
 const {  getRouterPedidos } = require('./routers/rutaPedido');
 const {  getRoutersProductos } = require('./routers/rutaProducto');
-//const { buscar } = require('./routers/rutaLogin');
+
 
 const server=express();
 server.use(express.json());//para capturar los datos desde el postman 
@@ -60,6 +60,8 @@ function errorHandler(err,req,res,next){
             res.status(406).send('ya existe el producto que intenta ingresar');
         }  else if (err.message==='no ha completado el campo "name"'){
             res.status(404).send('no ha completado el campo "name"');
+        }  else if (err.message==='no ha completado el campo "newName"'){
+            res.status(404).send('no ha completado el campo "newName"');
         }  else if (err.message==='no ha completado el campo "description"'){
             res.status(404).send('no ha completado el campo "description"');
         }  else if (err.message==='no ha completado el campo "stock"'){
@@ -93,13 +95,17 @@ function errorHandler(err,req,res,next){
          } else if (err.message==="no existe el pedido NO NO ingresado"){
              res.status(404).send("no existe el pedido NO NO ingresado");
          } else if (err.message==="el pedido se encuentra cerrado, no se puede modificar"){
-             res.status(406);send("el pedido se encuentra cerrado, no se puede modificar");
+             res.status(406).send("el pedido se encuentra cerrado, no se puede modificar");
+         } else if (err.message==='no existe el producto ingresado'){
+             res.status(404).send('no existe el producto ingresado');
+         } else if (err.message==="no existe pedido a su nombre, con ese identificados ingresado") {
+            res.status(404).send("no existe pedido a su nombre, con ese identificados ingresado");
          }
     } 
 }
 
 
-server.use(errorHandler);//se utiliza luego de todos los get /post/delet/.....
+server.use(errorHandler);
 server.listen('9080',()=> {
      console.log('hola mundo, servior disponible!!!!!!!')
 })
