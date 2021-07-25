@@ -266,15 +266,7 @@ paths:
                     id:
                       type: string    
                       description:  product id      
-                    name:
-                      type: string    
-                      description:   product name
-                    description:
-                      type: string
-                    stock:
-                      type: number
-                    precio:
-                      type: number
+                      example: 2
           responses:
                   "200":
                     description: its OK , successfully remove product 
@@ -288,7 +280,7 @@ paths:
                       application/json:
                         schema:
                           type: array
-    /Pedido/crear: #no anda :/
+    /Pedido/crear: 
       post:
           parameters:
               - name: token
@@ -358,7 +350,7 @@ paths:
                   type: object
                   properties:   
                      pedidoId:
-                       type: string    
+                       type: number    
                      direcc:
                        type: string                            
                      modoPago:
@@ -699,7 +691,8 @@ paths:
                     pedidoId:
                       type: number   
                       description:  pedido id
-                  example: 789
+                  example:
+                    pedidoId: 789
           responses:
                   "200":
                     description: its OK ,the order was removed from the list

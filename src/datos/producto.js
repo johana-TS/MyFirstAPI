@@ -126,7 +126,7 @@ function buscarProductoXNombre(nombre){
 }
 
 function buscarProductoXID(id){ //para borrar producto
-   // console.log(arrayProducto);
+   
     for (const producto of arrayProducto) {
         if (producto.id === id){
             const position=arrayProducto.indexOf(producto);
